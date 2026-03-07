@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: #0A0705;
+  --bg-surface: #111009;
+  --bg-raised: #1A1712;
+  --accent-ember: #E8540A;
+  --accent-gold: #C9933A;
+  --accent-cream: #F2EDDF;
+  --text-secondary: #8C7E6A;
+  --border-subtle: rgba(242, 237, 223, 0.08);
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-playfair), serif;
+  }
+  .font-sans {
+    font-family: var(--font-inter), sans-serif;
+  }
+}

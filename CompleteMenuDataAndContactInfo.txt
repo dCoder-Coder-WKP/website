@@ -1,0 +1,123 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WE KNEAD PIZZA — COMPLETE MENU DATA
+(Extracted from official menu image. Use these exact names and prices.)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All pizzas are hand tossed. Thin crust available on request.
+Small serves 1 | Medium serves 2 | Large serves 4
+🟢 = Veg  🔴 = Non-Veg
+
+━━━ VEG PIZZAS 🟢 ━━━
+
+1.  Margarita
+    Toppings: Mozzarella, Cheddar, fresh Basil
+    Small: ₹130 | Medium: ₹230 | Large: ₹350
+
+2.  Veg Delight Pizza
+    Toppings: Onion, Capsicum, Sweetcorn
+    Small: ₹250 | Medium: ₹320 | Large: ₹460
+
+3.  Farm Fresh Pizza
+    Toppings: Onion, Capsicum, Mushroom, Sweetcorn
+    Small: ₹270 | Medium: ₹340 | Large: ₹490
+
+4.  Mushroom Garlic Twist [BEST SELLER]
+    Toppings: Garlic Tossed Mushroom, Onion, Black Olives
+    Small: ₹270 | Medium: ₹340 | Large: ₹490
+
+5.  Tangy Veg Pizza [SPICY]
+    Toppings: Onion, Capsicum, Jalapeno, Red Pepper
+    Small: ₹290 | Medium: ₹360 | Large: ₹510
+
+6.  Paneer Tikka Pizza
+    Toppings: Paneer Tikka, Onion, Capsicum
+    Small: ₹330 | Medium: ₹390 | Large: ₹560
+
+7.  Veg Extravaganza Pizza
+    Toppings: Herbed Onion, Capsicum, Mushroom, Corn, Black Olives, Grilled Paneer
+    Small: ₹350 | Medium: ₹450 | Large: ₹640
+
+8.  Paneer Makhani Pizza [BEST SELLER]
+    Toppings: Grilled Paneer, Onion, Makhani Gravy
+    Small: ₹340 | Medium: ₹400 | Large: ₹560
+
+━━━ CHICKEN PIZZAS 🔴 ━━━
+
+9.  Roasted Chicken Pizza
+    Toppings: Roast Chicken, Onion, Sweetcorn
+    Small: ₹310 | Medium: ₹390 | Large: ₹540
+
+10. Tandoori Chicken Pizza [BEST SELLER]
+    Toppings: Tandoori Chicken, Onion, Capsicum, Mushroom
+    Small: ₹330 | Medium: ₹420 | Large: ₹580
+
+11. BBQ Chicken Pizza [BEST SELLER]
+    Toppings: BBQ Chicken, Onion, Capsicum, Sweetcorn
+    Small: ₹330 | Medium: ₹420 | Large: ₹580
+
+12. Chicken Sausage Pizza
+    Toppings: Sliced Chicken Sausage, Onion, Capsicum
+    Small: ₹370 | Medium: ₹420 | Large: ₹610
+
+13. Chicken Makhani Pizza
+    Toppings: Tandoored Chicken, Onion, Makhani Gravy
+    Small: ₹330 | Medium: ₹440 | Large: ₹640
+
+14. Chicken Bacon Pizza
+    Toppings: Chicken Bacon, Sliced Black Olives, Onion
+    Small: ₹370 | Medium: ₹420 | Large: ₹610
+
+15. Chicken Peri Peri Pizza [SPICY]
+    Toppings: Peri Peri Chicken, Onion, Red Pepper, Jalapenos
+    Small: ₹340 | Medium: ₹460 | Large: ₹640
+
+16. Spicy Chicken Tikka Pizza [SPICY]
+    Toppings: Tandoori Chicken, Onion, Red Pepper
+    Small: ₹310 | Medium: ₹420 | Large: ₹580
+
+17. Chicken Garlic Twist [BEST SELLER]
+    Toppings: Garlic Chicken, Onion, Sliced Black Olives
+    Small: ₹330 | Medium: ₹400 | Large: ₹550
+
+━━━ EXTRA TOPPINGS ━━━
+(Added to any pizza at time of order)
+
+Cheese 🟢
+    Small: ₹40 | Medium: ₹60 | Large: ₹80
+
+Onion / Capsicum / Mushroom / Sweetcorn 🟢
+    (Any one of these per selection)
+    Small: ₹20 | Medium: ₹30 | Large: ₹40
+
+Red Pepper / Olives / Jalapenos / Paneer 🟢
+    (Any one of these per selection)
+    Small: ₹40 | Medium: ₹50 | Large: ₹70
+
+Chicken 🔴
+    Small: ₹50 | Medium: ₹70 | Large: ₹100
+
+━━━ ADD-ONS ━━━
+(Flat price, no size variant. Ordered as standalone items.)
+
+Garlic Bread Sticks 🟢              ₹70
+    6 pieces
+
+Cheesy Garlic Bread 🟢              ₹150
+    Calzone style, 6 pieces
+
+Chicken Kheema Calzone 🔴           ₹300
+    4 pieces
+
+Rich Chocolate Brownie 🔴           ₹90
+    80g (marked non-veg on menu — contains egg)
+
+━━━ ORDERING INFO ━━━
+WhatsApp: +91 84848 02540
+Location: Carona, Goa (Takeaway, Delivery, Dine-in)
+Hours: 5 PM – 9 PM daily
+Minimum order value required for home delivery.
+Delivery charges vary by location.
+Allow at least 1 hour for delivery.
+FSSAI No.: 20621001001228
+Menu last revised: November 2025
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
