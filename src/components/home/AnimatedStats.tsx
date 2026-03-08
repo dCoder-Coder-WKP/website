@@ -88,7 +88,7 @@ export default function AnimatedStats() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mb-20 text-center"
         >
-          <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">People's Choice</span>
+          <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">People&apos;s Choice</span>
           <h2 className="font-serif text-4xl italic sm:text-5xl lg:text-5xl text-text-primary">
             What Carona Says
           </h2>

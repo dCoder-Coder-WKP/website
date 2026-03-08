@@ -89,7 +89,7 @@ export default function VillaConciergePage() {
           </div>
           <h3 className="mb-4 font-serif text-2xl font-bold">Simple &amp; Hassle-Free</h3>
           <p className="text-river-silk">
-            No app, no registration. We cover nearby neighbourhoods in Carona and Aldona. One message and you're sorted.
+            No app, no registration. We cover nearby neighbourhoods in Carona and Aldona. One message and you&apos;re sorted.
           </p>
         </GlassCard>
       </div>
