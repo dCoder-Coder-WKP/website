@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { logger } from './logger'
 import { Pizza, Topping, Extra, Notification, SiteConfig, ToppingID, Size } from '../types'
 import { PIZZAS, TOPPINGS, EXTRAS } from './menuData'
 
@@ -37,7 +38,7 @@ export async function fetchPizzas(): Promise<Pizza[]> {
       }
     })
   } catch (err) {
-    console.error('Supabase fetch failed, using static fallback', err)
+    logger.warn('Supabase fetchPizzas failed, using static fallback', err, 'api')
     return PIZZAS as Pizza[]
   }
 }
@@ -65,7 +66,7 @@ export async function fetchToppings(): Promise<Topping[]> {
       isSoldOut: row.is_sold_out
     }))
   } catch (err) {
-    console.error('Supabase fetch failed, using static fallback', err)
+    logger.warn('Supabase fetchToppings failed, using static fallback', err, 'api')
     return TOPPINGS as Topping[]
   }
 }
@@ -91,7 +92,7 @@ export async function fetchExtras(): Promise<Extra[]> {
       isSoldOut: row.is_sold_out
     }))
   } catch (err) {
-    console.error('Supabase fetch failed, using static fallback', err)
+    logger.warn('Supabase fetchExtras failed, using static fallback', err, 'api')
     return EXTRAS as Extra[]
   }
 }
@@ -122,7 +123,7 @@ export async function fetchNotifications(): Promise<Notification[]> {
         expiresAt: row.expires_at
       }))
   } catch (err) {
-    console.error('Supabase fetch failed, returning empty notifications', err)
+    logger.warn('Supabase fetchNotifications failed', err, 'api')
     return []
   }
 }
@@ -141,22 +142,31 @@ export async function fetchSiteConfig(): Promise<SiteConfig | null> {
     })
     return config as SiteConfig
   } catch (err) {
-    console.error('Supabase fetch failed, using mock site config', err)
+    logger.warn('Supabase fetchSiteConfig failed', err, 'api')
     return null
   }
 }
 
+/**
+ * Validates an order against server-side prices via the Supabase Edge Function.
+ * Fails CLOSED: if the edge function is unreachable, the order is rejected.
+ * This prevents price manipulation by treating an unavailable validator as invalid.
+ */
 export async function validateOrder(items: any[], claimedTotal: number) {
-  const { data, error } = await supabase.functions.invoke('validate-order', {
-    body: { items, claimedTotal },
-  });
+  try {
+    const { data, error } = await supabase.functions.invoke('validate-order', {
+      body: { items, claimedTotal },
+    });
 
-  if (error) {
-    console.error('Error validating order:', error);
-    // If edge function fails (e.g. not deployed), fail closed or open depending on business need.
-    // For now, return a safe fallback.
-    return { isValid: true, calculatedTotal: claimedTotal, claimedTotal, verified: false };
+    if (error) {
+      logger.error('Edge function validate-order failed', error, 'api')
+      // Fail CLOSED: reject the order when the validator is down
+      return { isValid: false, calculatedTotal: 0, claimedTotal, verified: false };
+    }
+
+    return data as { isValid: boolean; calculatedTotal: number; claimedTotal: number; verified: boolean };
+  } catch (err) {
+    logger.error('Unexpected error calling validate-order', err, 'api')
+    return { isValid: false, calculatedTotal: 0, claimedTotal, verified: false };
   }
-
-  return data as { isValid: boolean; calculatedTotal: number; claimedTotal: number; verified: boolean };
 }

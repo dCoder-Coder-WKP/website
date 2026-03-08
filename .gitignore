@@ -5,6 +5,8 @@ node_modules/
 *.log
 seed.log
 test-output.txt
+test-results*.json
+test-results*.txt
 coverage/
 .vercel/
 .tmp/

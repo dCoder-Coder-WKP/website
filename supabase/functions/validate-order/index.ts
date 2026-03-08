@@ -16,79 +16,146 @@ interface OrderRequest {
   claimedTotal: number;
 }
 
+// Lock CORS to the actual production domain via env var.
+// Set ALLOWED_ORIGIN in Supabase Edge Function secrets.
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://wekneadpizza.com';
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+const MAX_ITEMS = 50;
+const MAX_BODY_SIZE_BYTES = 16_384; // 16 KB
+
+function errorResponse(message: string, status = 400): Response {
+  // Never expose internal details — just return a generic message in production.
+  return new Response(
+    JSON.stringify({ error: message }),
+    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+  );
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return errorResponse('Method not allowed', 405);
+  }
+
+  // Guard against oversized payloads
+  const contentLength = parseInt(req.headers.get('content-length') ?? '0', 10);
+  if (contentLength > MAX_BODY_SIZE_BYTES) {
+    return errorResponse('Request body too large', 413);
+  }
+
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const { items, claimedTotal } = (await req.json()) as OrderRequest;
-    
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse('Invalid JSON body', 400);
+    }
+
+    // Input validation
+    if (
+      typeof body !== 'object' ||
+      body === null ||
+      !Array.isArray((body as OrderRequest).items) ||
+      typeof (body as OrderRequest).claimedTotal !== 'number'
+    ) {
+      return errorResponse('Invalid request shape', 400);
+    }
+
+    const { items, claimedTotal } = body as OrderRequest;
+
+    if (items.length === 0) {
+      return errorResponse('Order must contain at least one item', 400);
+    }
+
+    if (items.length > MAX_ITEMS) {
+      return errorResponse('Order contains too many items', 400);
+    }
+
+    if (claimedTotal < 0) {
+      return errorResponse('Invalid total', 400);
+    }
+
     let calculatedTotal = 0;
 
     for (const item of items) {
-       // Look up price from database depending on type
-       let dbPrice = 0;
+      // Validate each item
+      if (typeof item.name !== 'string' || item.name.length === 0 || item.name.length > 200) {
+        return errorResponse('Invalid item name', 400);
+      }
+      if (typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 20) {
+        return errorResponse('Invalid item quantity', 400);
+      }
+      if (!['pizza', 'extra', 'topping'].includes(item.type)) {
+        return errorResponse('Invalid item type', 400);
+      }
 
-       if (item.type === 'pizza') {
-          const { data, error } = await supabaseClient
-            .from('pizzas')
-            .select('price_small, price_medium, price_large')
-            .eq('name', item.name)
-            .single();
-            
-          if (error) throw new Error(`Pizza ${item.name} not found`);
-          
-          if (item.size === 'small') dbPrice = data.price_small;
-          else if (item.size === 'medium') dbPrice = data.price_medium;
-          else if (item.size === 'large') dbPrice = data.price_large;
+      let dbPrice = 0;
 
-       } else if (item.type === 'extra' || item.type === 'topping') {
-          // Both extras and toppings have standard price column
-          const table = item.type === 'extra' ? 'extras' : 'toppings';
-          const { data, error } = await supabaseClient
-            .from(table)
-            .select('price')
-            .eq('name', item.name)
-            .single();
-            
-          if (error) throw new Error(`Item ${item.name} not found in ${table}`);
-          dbPrice = data.price;
-       }
+      if (item.type === 'pizza') {
+        if (!item.size || !['small', 'medium', 'large'].includes(item.size)) {
+          return errorResponse('Pizza size is required', 400);
+        }
 
-       calculatedTotal += dbPrice * item.quantity;
+        const { data, error } = await supabaseClient
+          .from('pizzas')
+          .select('price_small, price_medium, price_large')
+          .eq('name', item.name)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !data) return errorResponse('Item not found', 404);
+
+        if (item.size === 'small') dbPrice = data.price_small;
+        else if (item.size === 'medium') dbPrice = data.price_medium;
+        else dbPrice = data.price_large;
+
+      } else if (item.type === 'extra' || item.type === 'topping') {
+        const table = item.type === 'extra' ? 'extras' : 'toppings';
+        const { data, error } = await supabaseClient
+          .from(table)
+          .select('price')
+          .eq('name', item.name)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !data) return errorResponse('Item not found', 404);
+        dbPrice = data.price;
+      }
+
+      calculatedTotal += dbPrice * item.quantity;
     }
 
-    // Add logistics fee logic
-    const logisticsFee = items.length === 0 ? 0 : 50;
-    const finalCalculatedGrandTotal = calculatedTotal + logisticsFee;
-
-    const isValid = finalCalculatedGrandTotal === claimedTotal;
+    const finalCalculatedGrandTotal = calculatedTotal;
+    const isValid = Math.abs(finalCalculatedGrandTotal - claimedTotal) < 0.01; // FP safe
 
     return new Response(
-      JSON.stringify({ 
-        isValid, 
-        calculatedTotal: finalCalculatedGrandTotal, 
-         claimedTotal,
-         verified: true
+      JSON.stringify({
+        isValid,
+        calculatedTotal: finalCalculatedGrandTotal,
+        claimedTotal,
+        verified: true,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
 
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+  } catch (_err) {
+    // Do not expose internal error details in production
+    console.error('[validate-order] Internal error:', _err);
+    return errorResponse('Internal server error', 500);
   }
 });

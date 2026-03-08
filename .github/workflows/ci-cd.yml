@@ -11,27 +11,44 @@ on:
   pull_request:
 
 jobs:
-  Test:
+  Quality:
+    name: Lint, Type-check & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
+
       - name: Type check
         run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
       - name: Run tests
-        run: npm run test
+        run: npm run test -- --run
         env:
           NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock_anon"
 
+      - name: Verify build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock_anon"
+          NEXT_PUBLIC_WHATSAPP_NUMBER: "918484802540"
+
   Deploy-Preview:
+    name: Deploy Preview
     runs-on: ubuntu-latest
-    needs: Test
+    needs: Quality
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
@@ -42,11 +59,23 @@ jobs:
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: echo "preview_url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})" >> $GITHUB_OUTPUT
+      - name: Post Preview URL to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview deployed: ${{ steps.deploy.outputs.preview_url }}`
+            })
 
   Deploy-Production:
+    name: Deploy Production
     runs-on: ubuntu-latest
-    needs: Test
+    needs: Quality
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4

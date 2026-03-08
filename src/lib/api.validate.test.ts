@@ -30,7 +30,7 @@ describe('api.ts validateOrder', () => {
     expect(result).toEqual(mockResponse.data);
   });
 
-  it('should handle edge function error gracefully, returning safe fallback', async () => {
+  it('should fail CLOSED when edge function is unavailable (security default)', async () => {
     const mockError = { error: { message: 'Network error' } };
     vi.mocked(supabase.functions.invoke).mockResolvedValueOnce(mockError as any);
 
@@ -39,8 +39,10 @@ describe('api.ts validateOrder', () => {
 
     const result = await validateOrder(items, claimedTotal);
     
-    // Fallback behavior handles the error and permits the order
-    expect(result).toEqual({ isValid: true, calculatedTotal: 500, claimedTotal: 500, verified: false });
+    // Fail CLOSED: when validator is down, reject the order rather than accepting it.
+    // This prevents price manipulation via a downed validation service.
+    expect(result.isValid).toBe(false);
+    expect(result.verified).toBe(false);
   });
 
   it('should return isValid false when price tampering is detected', async () => {
