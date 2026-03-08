@@ -26,6 +26,11 @@ vi.mock('qrcode.react', () => ({
   ),
 }));
 
+// Mock api to prevent Supabase init
+vi.mock('@/lib/api', () => ({
+  validateOrder: vi.fn().mockResolvedValue({ isValid: true })
+}));
+
 // Mock framer-motion to render instantly without animations
 vi.mock('framer-motion', async () => {
   const actual = await vi.importActual('framer-motion');

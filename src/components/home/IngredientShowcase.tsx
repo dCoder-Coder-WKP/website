@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface Ingredient {
   name: string;
@@ -43,25 +44,7 @@ const ingredients: Ingredient[] = [
 
 export default function IngredientShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [offsetY, setOffsetY] = useState(0);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,10 +80,12 @@ export default function IngredientShowcase() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
         {/* Header */}
-        <div
-          className={`mb-16 lg:mb-24 text-center transition-all duration-ultra ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-16 lg:mb-24 text-center"
         >
           <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">Our Promise</span>
           <h2 className="font-serif text-4xl italic sm:text-5xl lg:text-5xl text-text-primary">
@@ -111,21 +96,18 @@ export default function IngredientShowcase() {
             We source only the finest components, each selected for absolute purity,
             health benefits, and flavor density. Every element on our pizzas represents Willie&apos;s commitment to quality.
           </p>
-        </div>
+        </motion.div>
 
         {/* Ingredient Cards Grid */}
         <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {ingredients.map((ingredient) => (
-            <div
+          {ingredients.map((ingredient, idx) => (
+            <motion.div
               key={ingredient.name}
-              className={`group relative transition-all duration-ultra ${
-                isVisible
-                  ? 'translate-y-0 opacity-100'
-                  : 'translate-y-20 opacity-0'
-              }`}
-              style={{
-                transitionDelay: `${ingredient.delay * 400}ms`,
-              }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="group relative"
             >
               {/* Card */}
               <div className="relative h-full overflow-hidden rounded-xl border border-border-refined bg-bg-base/40 p-8 backdrop-blur-sm transition-all duration-long hover:border-accent-gold/40 hover:bg-black/60 hover:shadow-[0_10px_40px_rgba(212,175,55,0.05)]">
@@ -158,7 +140,7 @@ export default function IngredientShowcase() {
                   <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-accent-gold transition-all duration-long group-hover:w-full" />
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

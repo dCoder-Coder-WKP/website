@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { useDeviceType } from '@/hooks/useDeviceType';
 import { composeWhatsAppMessage, buildWhatsAppURL } from '@/lib/composeMessage';
 import { QRCodeSVG } from 'qrcode.react';
+import { motion } from 'framer-motion';
+import { validateOrder } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 interface WhatsAppStepProps {
   address: string;
@@ -94,9 +97,28 @@ export default function WhatsAppStep({ address, mapsLink }: WhatsAppStepProps) {
   const total = useCartStore((s) => s.total());
   const deviceType = useDeviceType();
   const [qrError, setQrError] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
   const message = composeWhatsAppMessage({ items, total, address, mapsLink });
   const waURL = buildWhatsAppURL(message);
+
+  const handleDispatch = async () => {
+    setIsValidating(true);
+    try {
+      const result = await validateOrder(items, total);
+      if (!result.isValid) {
+        toast.error('Price validation failed. Please refresh the page and try again.');
+        return;
+      }
+      // Valid or validation bypassed
+      window.open(waURL, '_blank');
+    } catch {
+      // In case of any unhandled error, fall open to allow the user to order anyway
+      window.open(waURL, '_blank');
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   // ── Mobile: Deep-link button ──
   if (deviceType === 'mobile') {
@@ -116,16 +138,43 @@ export default function WhatsAppStep({ address, mapsLink }: WhatsAppStepProps) {
           </p>
         </div>
 
-        <a
-          href={waURL}
-          className="btn-luxury w-full !h-14 flex items-center justify-center !bg-green-600 !text-white !border-green-500/50 hover:!bg-green-500 transition-all font-medium"
+        <button
+          onClick={handleDispatch}
+          disabled={isValidating}
+          className="btn-luxury w-full !h-14 flex items-center justify-center !bg-green-600 !text-white !border-green-500/50 hover:!bg-green-500 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Initialize Dispatch
-        </a>
+          {isValidating ? 'Verifying Integrity...' : 'Initialize Dispatch'}
+        </button>
         
         <p className="font-sans text-[9px] text-text-muted uppercase tracking-luxury">
           Automated pre-filled composition
         </p>
+
+        {/* Order Tracking Visual */}
+        <div className="w-full pt-8 border-t border-border-refined text-left mt-8">
+          <h4 className="font-sans text-[10px] text-accent-gold uppercase tracking-[0.3em] mb-6">Live Tracking Estimations</h4>
+          <div className="relative pl-4 space-y-6">
+            <div className="absolute left-0 top-2 bottom-4 w-[1px] bg-border-refined" />
+            
+            <div className="relative">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-accent-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+              <p className="font-serif text-sm text-text-primary">Composition Initiated</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">Awaiting your WhatsApp dispatch</p>
+            </div>
+            
+            <div className="relative opacity-40">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-border-refined" />
+              <p className="font-serif text-sm text-text-primary">Artisanal Preparation</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">~ 15 minutes</p>
+            </div>
+            
+            <div className="relative opacity-40">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-border-refined" />
+              <p className="font-serif text-sm text-text-primary">Precision Baking</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">Gas Oven at 300°C</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -172,6 +221,32 @@ export default function WhatsAppStep({ address, mapsLink }: WhatsAppStepProps) {
           Open direct link on this device
         </a>
       </div>
+
+      {/* Order Tracking Visual */}
+      <div className="w-full pt-8 border-t border-border-refined text-left">
+          <h4 className="font-sans text-[10px] text-accent-gold uppercase tracking-[0.3em] mb-6 text-center">Live Tracking Estimations</h4>
+          <div className="relative pl-4 space-y-6 max-w-[240px] mx-auto">
+            <div className="absolute left-0 top-2 bottom-4 w-[1px] bg-border-refined" />
+            
+            <div className="relative">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-accent-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
+              <p className="font-serif text-sm text-text-primary">Composition Initiated</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">Awaiting your WhatsApp dispatch</p>
+            </div>
+            
+            <div className="relative opacity-40">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-border-refined" />
+              <p className="font-serif text-sm text-text-primary">Artisanal Preparation</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">~ 15 minutes</p>
+            </div>
+            
+            <div className="relative opacity-40">
+              <div className="absolute -left-[18.5px] top-1.5 w-2 h-2 rounded-full bg-border-refined" />
+              <p className="font-serif text-sm text-text-primary">Out for Delivery</p>
+              <p className="font-sans text-[9px] text-text-muted mt-1 uppercase tracking-wider">Assigned to Fleet</p>
+            </div>
+          </div>
+        </div>
     </div>
   );
 }

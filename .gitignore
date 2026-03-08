@@ -5,3 +5,7 @@ node_modules/
 *.log
 seed.log
 test-output.txt
+coverage/
+.vercel/
+.tmp/
+*.tsbuildinfo

@@ -9,6 +9,7 @@ export interface Topping {
   mesh: 'sphere' | 'disc' | 'sliver' | 'chunk';
   color: string;
   veg?: boolean;
+  isSoldOut?: boolean;
 }
 
 export interface Pizza {
@@ -18,8 +19,10 @@ export interface Pizza {
   toppings: ToppingID[];
   prices: Record<Size, number>;
   image?: string;
+  image_url?: string;
   dietary: 'veg' | 'non-veg';
   spicy?: boolean;
+  isSoldOut?: boolean;
 }
 
 export interface Extra {
@@ -28,9 +31,10 @@ export interface Extra {
   category: 'starter' | 'dessert';
   price: number;
   image?: string;
+  image_url?: string;
   dietary: 'veg' | 'non-veg';
   description?: string;
-  veg?: boolean;
+  isSoldOut?: boolean;
 }
 
 export interface Notification {
@@ -52,4 +56,32 @@ export interface SiteConfig {
   min_order_amount: string;
   is_open: string;
   delivery_note: string;
+  announcement_bar?: string;
+}
+
+export type OrderStatus = 'pending' | 'baking' | 'out_for_delivery' | 'delivered' | 'cancelled';
+
+export interface Order {
+  id: string;
+  order_number: number;
+  status: OrderStatus;
+  total_price: number;
+  customer_name: string;
+  customer_phone: string;
+  delivery_address: string;
+  payment_status: 'pending' | 'paid' | 'failed';
+  payment_method: 'cod' | 'online';
+  created_at: string;
+  items: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  item_type: 'pizza' | 'extra';
+  pizza_id?: string;
+  extra_id?: string;
+  size?: Size;
+  quantity: number;
+  price: number;
+  customization_json: any;
 }

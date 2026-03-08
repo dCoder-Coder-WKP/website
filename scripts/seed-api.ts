@@ -20,7 +20,13 @@ async function main() {
       throw new Error('Categories not found! Make sure you ran the SQL schema first.');
   }
 
-  console.log('Upserting toppings...');
+  console.log(`  veg-pizza:     ${vegPizzaCat}`);
+  console.log(`  chicken-pizza: ${nonVegPizzaCat}`);
+  console.log(`  starter:       ${starterCat}`);
+  console.log(`  dessert:       ${dessertCat}`);
+
+  // ----- Toppings -----
+  console.log('\nUpserting toppings...');
   for (const t of TOPPINGS) {
     const { error } = await supabase.from('toppings').upsert({
       slug: t.id,
@@ -33,12 +39,15 @@ async function main() {
       price_large: t.prices.large,
       is_veg: t.veg ?? true
     }, { onConflict: 'slug' });
-    if (error) console.error('Error on topping', t.id, error.message);
+    if (error) console.error('  ❌ Topping', t.id, error.message);
+    else console.log('  ✅', t.id);
   }
 
-  console.log('Upserting pizzas...');
+  // ----- Pizzas (FIX: use dietary field, not id-based heuristic) -----
+  console.log('\nUpserting pizzas...');
   for (const pizza of PIZZAS) {
-    const catId = pizza.id.includes('chicken') ? nonVegPizzaCat : vegPizzaCat;
+    // CRITICAL FIX: Use the dietary field from menuData, not a string match on the id
+    const catId = pizza.dietary === 'non-veg' ? nonVegPizzaCat : vegPizzaCat;
     const { error } = await supabase.from('pizzas').upsert({
       slug: pizza.id,
       name: pizza.name,
@@ -50,14 +59,16 @@ async function main() {
       is_bestseller: false,
       is_spicy: pizza.spicy ?? false
     }, { onConflict: 'slug' });
-    if (error) console.error('Error on pizza', pizza.id, error.message);
+    if (error) console.error('  ❌ Pizza', pizza.id, error.message);
+    else console.log(`  ✅ ${pizza.id} → ${pizza.dietary === 'non-veg' ? 'CHICKEN' : 'VEG'}`);
   }
 
-  console.log('Upserting pizza_toppings (clearing first)...');
-  await supabase.from('pizza_toppings').delete().neq('pizza_id', '00000000-0000-0000-0000-000000000000'); // delete all
+  // ----- Pizza Toppings -----
+  console.log('\nUpserting pizza_toppings...');
+  // Clear all first
+  await supabase.from('pizza_toppings').delete().neq('pizza_id', '00000000-0000-0000-0000-000000000000');
   
   for (const pizza of PIZZAS) {
-    // Get pizza internal ID
     const { data: pRows } = await supabase.from('pizzas').select('id').eq('slug', pizza.id);
     if (!pRows || pRows.length === 0) continue;
     const pizzaId = pRows[0].id;
@@ -71,25 +82,28 @@ async function main() {
         pizza_id: pizzaId,
         topping_id: toppingId
       });
-      if (error) console.error('Error on pizza_topping', pizza.id, toppingSlug, error.message);
+      if (error) console.error('  ❌ pizza_topping', pizza.id, toppingSlug, error.message);
     }
+    console.log(`  ✅ ${pizza.id} (${pizza.toppings.length} toppings)`);
   }
 
-  console.log('Upserting extras...');
+  // ----- Extras (FIX: use category field, not id-based heuristic) -----
+  console.log('\nUpserting extras...');
   for (const extra of EXTRAS) {
-    const catId = extra.id.includes('brownie') ? dessertCat : starterCat;
+    const catId = extra.category === 'dessert' ? dessertCat : starterCat;
     const { error } = await supabase.from('extras').upsert({
       slug: extra.id,
       name: extra.name,
-      description: extra.description,
+      description: extra.description ?? '',
       category_id: catId,
       price: extra.price,
-      is_veg: extra.veg ?? true
+      is_veg: extra.dietary === 'veg'
     }, { onConflict: 'slug' });
-    if (error) console.error('Error on extra', extra.id, error.message);
+    if (error) console.error('  ❌ Extra', extra.id, error.message);
+    else console.log(`  ✅ ${extra.id} → ${extra.category}`);
   }
 
-  console.log('Data seeding complete!');
+  console.log('\n✅ Data seeding complete!');
 }
 
 main().catch(console.error);

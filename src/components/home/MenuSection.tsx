@@ -79,8 +79,12 @@ export default function MenuSection() {
               
               <div className="flex items-center justify-between pt-6 border-t border-border-refined">
                 <span className="font-sans text-lg text-text-primary font-light">₹{pizza.prices.medium}</span>
-                <Link href="/menu" className="text-[10px] uppercase font-sans tracking-luxury text-accent-gold hover:text-white transition-colors duration-medium flex items-center gap-2">
-                  Order Yours <span className="text-[14px]">→</span>
+                <Link 
+                  href="/menu" 
+                  aria-label={`Order ${pizza.name}`}
+                  className="text-[10px] uppercase font-sans tracking-luxury text-accent-gold hover:text-white transition-colors duration-medium flex items-center gap-2"
+                >
+                  Order Yours <span className="text-[14px]" aria-hidden="true">→</span>
                 </Link>
               </div>
             </div>

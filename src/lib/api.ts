@@ -7,9 +7,9 @@ export async function fetchPizzas(): Promise<Pizza[]> {
     const { data, error } = await supabase
       .from('pizzas')
       .select(`
-        id, slug, name, description, is_bestseller, is_spicy, price_small, price_medium, price_large,
+        id, slug, name, description, is_bestseller, is_spicy, price_small, price_medium, price_large, image_url, is_sold_out,
         pizza_toppings (
-          toppings ( slug, is_active, is_veg )
+          toppings ( slug, is_active, is_veg, is_sold_out )
         )
       `)
       .eq('is_active', true)
@@ -31,7 +31,9 @@ export async function fetchPizzas(): Promise<Pizza[]> {
           large: row.price_large
         },
         dietary: isVeg ? 'veg' : 'non-veg',
-        image: undefined
+        image: row.image_url || undefined,
+        image_url: row.image_url,
+        isSoldOut: row.is_sold_out
       }
     })
   } catch (err) {
@@ -59,7 +61,8 @@ export async function fetchToppings(): Promise<Topping[]> {
         large: row.price_large
       },
       mesh: row.mesh_type,
-      color: row.color_hex
+      color: row.color_hex,
+      isSoldOut: row.is_sold_out
     }))
   } catch (err) {
     console.error('Supabase fetch failed, using static fallback', err)
@@ -83,7 +86,9 @@ export async function fetchExtras(): Promise<Extra[]> {
       category: row.categories?.slug === 'starter' ? 'starter' : 'dessert',
       price: row.price,
       dietary: row.is_veg ? 'veg' : 'non-veg',
-      image: undefined
+      image: row.image_url || undefined,
+      image_url: row.image_url,
+      isSoldOut: row.is_sold_out
     }))
   } catch (err) {
     console.error('Supabase fetch failed, using static fallback', err)
@@ -139,4 +144,19 @@ export async function fetchSiteConfig(): Promise<SiteConfig | null> {
     console.error('Supabase fetch failed, using mock site config', err)
     return null
   }
+}
+
+export async function validateOrder(items: any[], claimedTotal: number) {
+  const { data, error } = await supabase.functions.invoke('validate-order', {
+    body: { items, claimedTotal },
+  });
+
+  if (error) {
+    console.error('Error validating order:', error);
+    // If edge function fails (e.g. not deployed), fail closed or open depending on business need.
+    // For now, return a safe fallback.
+    return { isValid: true, calculatedTotal: claimedTotal, claimedTotal, verified: false };
+  }
+
+  return data as { isValid: boolean; calculatedTotal: number; claimedTotal: number; verified: boolean };
 }

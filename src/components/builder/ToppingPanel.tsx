@@ -72,9 +72,12 @@ export default function ToppingPanel({ state, dispatch, toppings }: ToppingPanel
                   <button
                     key={topping.id}
                     onClick={() => dispatch({ type: 'TOGGLE_TOPPING', id: topping.id })}
+                    disabled={topping.isSoldOut}
                     className={`group w-full flex items-center justify-between px-5 py-4 rounded-2xl transition-all duration-medium border border-border-refined ${
                       isSelected
                         ? 'bg-accent-gold-glow/10 border-accent-gold/40'
+                        : topping.isSoldOut
+                        ? 'opacity-50 cursor-not-allowed'
                         : 'bg-bg-surface/50 hover:border-accent-gold/20'
                     }`}
                     aria-pressed={isSelected}
@@ -97,13 +100,17 @@ export default function ToppingPanel({ state, dispatch, toppings }: ToppingPanel
                           )}
                         </AnimatePresence>
                       </div>
-                      <span className={`text-sm tracking-wide font-light transition-colors ${isSelected ? 'text-text-primary font-medium' : 'text-text-secondary'}`}>
+                      <span className={`text-sm tracking-wide font-light transition-colors ${isSelected ? 'text-text-primary font-medium' : 'text-text-secondary'} ${topping.isSoldOut ? 'line-through' : ''}`}>
                         {topping.name}
                       </span>
                     </div>
-                    <span className={`font-sans text-[10px] tracking-widest ${price === 0 ? 'text-green-500/80' : 'text-text-muted'}`}>
-                      {price === 0 ? 'EST.' : `+₹${price}`}
-                    </span>
+                    {topping.isSoldOut ? (
+                      <span className="font-sans text-[10px] tracking-widest text-red-400">SOLD OUT</span>
+                    ) : (
+                      <span className={`font-sans text-[10px] tracking-widest ${price === 0 ? 'text-green-500/80' : 'text-text-muted'}`}>
+                        {price === 0 ? 'EST.' : `+₹${price}`}
+                      </span>
+                    )}
                   </button>
                 );
               })}

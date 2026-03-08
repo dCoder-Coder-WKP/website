@@ -36,7 +36,7 @@ export default function ExtrasSection({ items, category }: ExtrasSectionProps) {
     };
 
     return (
-      <div className="surface-luxury flex items-center justify-between p-6 hover:border-accent-gold-glow transition-all duration-medium group">
+      <div className={`surface-luxury flex items-center justify-between p-6 transition-all duration-medium group ${item.isSoldOut ? 'opacity-60 saturate-50 cursor-not-allowed' : 'hover:border-accent-gold-glow'}`}>
         <div className="flex flex-col gap-1">
           <h4 className="font-serif text-xl text-text-primary group-hover:text-accent-gold transition-colors duration-medium">
             {item.name}
@@ -67,9 +67,10 @@ export default function ExtrasSection({ items, category }: ExtrasSectionProps) {
 
           <button
             onClick={handleAdd}
+            disabled={item.isSoldOut}
             className={`btn-luxury !px-6 h-10 min-w-[100px] flex items-center justify-center text-xs transition-all duration-medium ${
               addedFeedback ? 'bg-green-800/20 text-green-400 border-green-800/40' : ''
-            }`}
+            } ${item.isSoldOut ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : ''}`}
           >
             <AnimatePresence mode="wait">
               {addedFeedback ? (
@@ -88,7 +89,7 @@ export default function ExtrasSection({ items, category }: ExtrasSectionProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
                 >
-                  Acquire
+                  {item.isSoldOut ? 'Sold Out' : 'Acquire'}
                 </motion.span>
               )}
             </AnimatePresence>

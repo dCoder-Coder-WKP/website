@@ -32,6 +32,13 @@ const config: Config = {
           subtle: "var(--border-subtle)",
           refined: "var(--border-refined)",
         },
+        luxury: {
+          "carona-sunset": "#FF7E5F",
+          "carona-glow": "#FEB47B",
+          "aldona-lush": "#0B3D0B",
+          "river-silk": "#A8C0D0",
+          "glass-edge": "rgba(255, 255, 255, 0.2)",
+        },
       },
       animation: {
         'fade-in': 'fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',

@@ -59,9 +59,10 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
   };
 
   const currentPrice = pizza.prices[selectedSize] * Math.max(cartQuantity, 1);
+  const isSoldOut = pizza.isSoldOut;
 
   return (
-    <div className="surface-luxury group flex flex-col h-full overflow-hidden transition-all duration-medium hover:border-accent-gold-glow">
+    <div className={`surface-luxury group flex flex-col h-full overflow-hidden transition-all duration-medium ${isSoldOut ? 'opacity-60 saturate-50 cursor-not-allowed' : 'hover:border-accent-gold-glow'}`}>
       {/* Visual Showcase */}
       <div className="relative aspect-[4/3] bg-bg-base overflow-hidden flex items-center justify-center border-b border-border-refined group-hover:border-accent-gold/20 transition-colors">
         {/* Background Narrative Image */}
@@ -147,9 +148,10 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
               {cartQuantity === 0 ? (
                 <button
                   onClick={handleAddToCart}
+                  disabled={isSoldOut}
                   className={`btn-luxury !px-8 h-full flex items-center justify-center min-w-[120px] transition-all duration-medium ${
                     addedFeedback ? 'bg-green-800/20 text-green-400 border-green-800/40' : ''
-                  }`}
+                  } ${isSoldOut ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : ''}`}
                 >
                   <AnimatePresence mode="wait">
                     {addedFeedback ? (
@@ -169,7 +171,7 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                       >
-                        Order Yours
+                        {isSoldOut ? 'Sold Out' : 'Order Yours'}
                       </motion.span>
                     )}
                   </AnimatePresence>

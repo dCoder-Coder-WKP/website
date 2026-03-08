@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 
 interface StatItem {
   label: string;
@@ -16,28 +17,11 @@ const stats: StatItem[] = [
 
 function CounterNumber({ target, suffix }: { target: number; suffix: string }) {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible]);
-
-  useEffect(() => {
-    if (!isVisible) return;
+    if (!isInView) return;
 
     let current = 0;
     const increment = Math.max(target / 80, 1);
@@ -52,7 +36,7 @@ function CounterNumber({ target, suffix }: { target: number; suffix: string }) {
     }, 20);
 
     return () => clearInterval(timer);
-  }, [isVisible, target]);
+  }, [isInView, target]);
 
   return (
     <div
@@ -82,7 +66,13 @@ export default function AnimatedStats() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
-        <div className="mb-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-20 text-center"
+        >
           <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">The Secret Sauce</span>
           <h2 className="font-serif text-4xl italic sm:text-5xl lg:text-5xl text-text-primary">
             By The Numbers
@@ -90,12 +80,16 @@ export default function AnimatedStats() {
           <p className="mt-6 text-sm font-light text-text-secondary">
             Willie Fernandes&apos; dedication to family recipes and modern precision.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid gap-16 sm:gap-12 md:grid-cols-3">
-          {stats.map((stat) => (
-            <div
+          {stats.map((stat, idx) => (
+            <motion.div
               key={stat.label}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="group flex flex-col items-center justify-center space-y-6 transition-transform hover:scale-105 duration-ultra cursor-default"
             >
               <CounterNumber target={stat.value} suffix={stat.suffix} />
@@ -103,7 +97,7 @@ export default function AnimatedStats() {
                 {stat.label}
               </p>
               <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-accent-gold to-transparent group-hover:w-24 transition-all duration-long" />
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

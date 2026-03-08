@@ -1,35 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
 
 export default function DoughSection() {
-  const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <section id="dough" ref={sectionRef} className="py-24 lg:py-32 bg-bg-base relative overflow-hidden">
+    <section id="dough" className="py-24 lg:py-32 bg-bg-base relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Left content */}
-          <div className={`transition-all duration-ultra ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
             <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">Our Craft</span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif italic text-text-primary mb-8 text-balance">
               A Family Legacy in Carona
@@ -54,10 +41,15 @@ export default function DoughSection() {
                 <span>Precision gas-oven baked to perfection</span>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Right visual */}
-          <div className={`transition-all duration-ultra delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'}`}>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="relative h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-border-refined group">
               <img 
                 src="https://images.unsplash.com/photo-1555072956-7758afb20e8f?q=80&w=1500&auto=format&fit=crop"
@@ -69,7 +61,7 @@ export default function DoughSection() {
                 <p className="text-accent-gold font-serif italic text-2xl tracking-wide">Traditional Technique</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

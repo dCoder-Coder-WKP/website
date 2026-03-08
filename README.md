@@ -11,9 +11,17 @@ The WKP Website is a Next.js 15 (App Router) application. Originally a fully sta
 2. **Client Components**: The fetched data is passed as props down to purely interactive Client Components (`MenuClient.tsx`, `BuildClient.tsx`) which handle the GSAP 3D animations, Framer Motion transitions, and complex DOM manipulations.
 3. **Resilience & Fallback**: All API calls (`lib/api.ts`) are wrapped in `try-catch` blocks. If the Supabase instance is unreachable, the application gracefully degrades by loading the legacy static data from `lib/menuData.ts`. This ensures 100% uptime for the customer-facing menu.
 
+### The $10M "Luxury Artisanal" Stack
+The platform has been scaled to support a $10M global operation while maintaining hyper-local village soul:
+- **Villa Concierge Portal**: Gated luxury interface for High Net Worth Individuals in Aldona.
+- **Artisanal IoT Loop**: Live telemetry from fermentation chambers and wood-fired ovens.
+- **Silent Fleet Logistics**: Real-time tracking of e-bike acoustic impact through village lanes.
+- **AI Sentiment Engine**: Natural language processing of WhatsApp and Google feedback to pivot menu artisanal terroir.
+
 ### State Management
 - **Cart**: Zustand is used for persisted client-side cart management.
 - **Pizza Builder**: Complex state transitions locally within the builder are handled via React `useReducer` (`lib/builderUtils.ts`), dynamically calculating prices based on server-injected base topping data.
+- **IoT & Fleet**: React state with interval-based mock-data synchronization for real-time operations oversight.
 
 ## Developer & Engineer Guide
 
@@ -35,6 +43,16 @@ The required database schema is located in `scripts/setup-db.ts`. Since this scr
 ```bash
 npm install
 npm run dev
+```
+
+### Edge Functions
+The `supabase/functions/validate-order` Edge Function provides a secure cryptographic layer protecting checkout cart totals from client-side tampering.
+```bash
+# Serve locally
+npx supabase functions serve validate-order
+
+# Deploy to production
+npx supabase functions deploy validate-order
 ```
 
 ### Testing

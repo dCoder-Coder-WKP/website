@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCartStore } from '@/store/useCartStore';
 import CartItem from './CartItem';
 import Link from 'next/link';
+import SmartUpsell from './SmartUpsell';
 
 export default function CartList() {
   const items = useCartStore((state) => state.items);
@@ -54,6 +54,8 @@ export default function CartList() {
           </motion.div>
         ))}
       </AnimatePresence>
+      
+      <SmartUpsell />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import MobileDrawer from './MobileDrawer';
 const NAV_LINKS = [
   { href: '/menu', label: 'The Collection' },
   { href: '/build', label: 'Configurator' },
+  { href: '/villa-concierge', label: 'Villa Concierge' },
 ];
 
 export default function NavBar() {
