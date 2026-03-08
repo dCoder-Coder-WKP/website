@@ -8,6 +8,7 @@ export interface Topping {
   prices: Record<Size, number>;
   mesh: 'sphere' | 'disc' | 'sliver' | 'chunk';
   color: string;
+  veg?: boolean;
 }
 
 export interface Pizza {
@@ -18,6 +19,7 @@ export interface Pizza {
   prices: Record<Size, number>;
   image?: string;
   dietary: 'veg' | 'non-veg';
+  spicy?: boolean;
 }
 
 export interface Extra {
@@ -27,6 +29,8 @@ export interface Extra {
   price: number;
   image?: string;
   dietary: 'veg' | 'non-veg';
+  description?: string;
+  veg?: boolean;
 }
 
 export interface Notification {
