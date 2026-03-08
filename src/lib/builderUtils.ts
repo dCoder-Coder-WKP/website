@@ -1,6 +1,5 @@
-import { Size, ToppingID } from '@/types';
+import { Size, ToppingID, Topping } from '@/types';
 import { TOPPINGS } from '@/lib/menuData';
-
 // ── Builder State ──────────────────────────────────────────────
 export interface BuilderState {
   selectedSize: Size;
@@ -49,10 +48,10 @@ export const CUSTOM_BASE_PRICE: Record<Size, number> = {
   large: 249,
 };
 
-export function calculateTotal(state: BuilderState): number {
+export function calculateTotal(state: BuilderState, toppings: Topping[] = TOPPINGS as Topping[]): number {
   const base = CUSTOM_BASE_PRICE[state.selectedSize];
   const toppingTotal = Array.from(state.selectedToppings).reduce((sum, id) => {
-    const t = TOPPINGS.find((tp) => tp.id === id);
+    const t = toppings.find((tp) => tp.id === id);
     return sum + (t?.prices[state.selectedSize] ?? 0);
   }, 0);
   return base + toppingTotal;

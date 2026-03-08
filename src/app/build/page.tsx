@@ -1,23 +1,11 @@
-'use client';
-
 import React from 'react';
-import Link from 'next/link';
-import PizzaBuilder from '@/components/builder/PizzaBuilder';
+import BuildClient from './BuildClient';
+import { fetchToppings } from '@/lib/api';
 
-export default function BuildPage() {
-  return (
-    <main className="min-h-screen bg-[#0A0705] overflow-x-hidden">
-      {/* Header */}
-      <div className="px-6 lg:px-12 pt-20 pb-4">
-        <Link
-          href="/menu"
-          className="inline-flex items-center text-[#8C7E6A] hover:text-[#C9933A] transition-colors font-sans text-sm uppercase tracking-widest"
-        >
-          ← Back to Menu
-        </Link>
-      </div>
+export const dynamic = 'force-dynamic';
 
-      <PizzaBuilder />
-    </main>
-  );
+export default async function BuildPage() {
+  const toppings = await fetchToppings();
+  
+  return <BuildClient toppings={toppings} />;
 }

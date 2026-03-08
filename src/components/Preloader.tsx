@@ -4,102 +4,120 @@ import { useEffect, useState, useRef } from 'react';
 import { gsap } from 'gsap';
 
 interface PreloaderProps {
-    onComplete: () => void;
+  onComplete: () => void;
 }
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-    const [isVisible, setIsVisible] = useState(true);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const weRef = useRef<HTMLSpanElement>(null);
-    const kneadRef = useRef<HTMLSpanElement>(null);
-    const pizzaRef = useRef<HTMLSpanElement>(null);
-    const progressLineRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textGroupRef = useRef<HTMLDivElement>(null);
+  const progressLineRef = useRef<HTMLDivElement>(null);
+  const shimmerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        // Check sessionStorage
-        const hasLoaded = sessionStorage.getItem('wkp-loaded');
-        if (hasLoaded) {
-            setIsVisible(false);
-            onComplete();
-            return;
-        }
+  useEffect(() => {
+    // Check sessionStorage to skip for return visits
+    const hasLoaded = sessionStorage.getItem('wkp-loaded');
+    if (hasLoaded) {
+      setIsVisible(false);
+      onComplete();
+      return;
+    }
 
-        const tl = gsap.timeline({
-            onComplete: () => {
-                sessionStorage.setItem('wkp-loaded', 'true');
-                setIsVisible(false);
-                onComplete();
-            },
-        });
+    const tl = gsap.timeline({
+      onComplete: () => {
+        sessionStorage.setItem('wkp-loaded', 'true');
+        setIsVisible(false);
+        onComplete();
+      },
+    });
 
-        // 0ms: black screen (initial CSS state)
-        // 200ms: "We" fades in
-        tl.to(weRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: 'power2.out',
-        }, 0.2);
+    const chars = textGroupRef.current?.querySelectorAll('.preloader-word');
+    
+    // 1. Reveal cinematic words
+    if (chars) {
+      tl.fromTo(chars, 
+        { opacity: 0, y: 30, skewY: 4 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          skewY: 0, 
+          duration: 1.2, 
+          stagger: 0.15, 
+          ease: "power4.out" 
+        }, 0.3
+      );
+    }
 
-        // 400ms: "Knead" fades in
-        tl.to(kneadRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: 'power2.out',
-        }, 0.2 + 0.08);
+    // 2. Horizontal thin gold line reveal
+    tl.to(progressLineRef.current, {
+      scaleX: 1,
+      duration: 1.8,
+      ease: "power2.inOut"
+    }, 0.8);
 
-        // 600ms: "Pizza" fades in
-        tl.to(pizzaRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: 'power2.out',
-        }, 0.2 + 0.16);
+    // 3. Shimmer effect during fill
+    tl.to(shimmerRef.current, {
+      x: '100%',
+      duration: 1.8,
+      ease: "none"
+    }, 0.8);
 
-        // 800ms: thin horizontal progress bar fills
-        tl.to(progressLineRef.current, {
-            scaleX: 1,
-            duration: 1.2,
-            ease: 'power2.inOut',
-        }, 0.8);
+    // 4. Luxury exit (fade and scale)
+    tl.to(textGroupRef.current, {
+      letterSpacing: '0.2em',
+      opacity: 0,
+      scale: 1.05,
+      duration: 1,
+      ease: "power2.inOut"
+    }, 2.4);
 
-        // 2000ms: all elements scale up and fade out
-        tl.to([weRef.current, kneadRef.current, pizzaRef.current, progressLineRef.current], {
-            scale: 1.08,
-            opacity: 0,
-            duration: 0.4,
-            ease: 'power2.inOut',
-        }, 2.0);
+    tl.to(progressLineRef.current, {
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.inOut"
+    }, 2.6);
 
-        // 2400ms: overlay fades out (handled by container fade out or unmount)
-        tl.to(containerRef.current, {
-            opacity: 0,
-            duration: 0.4,
-            ease: 'power2.inOut',
-        }, 2.4);
+    tl.to(containerRef.current, {
+      opacity: 0,
+      duration: 1,
+      ease: "power2.inOut"
+    }, 3.0);
 
-    }, [onComplete]);
+  }, [onComplete]);
 
-    if (!isVisible) return null;
+  if (!isVisible) return null;
 
-    return (
+  return (
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] bg-bg-base flex flex-col items-center justify-center text-text-primary"
+    >
+      {/* Editorial Branding Section */}
+      <div 
+        ref={textGroupRef}
+        className="flex gap-4 lg:gap-8 font-serif text-[40px] md:text-[64px] lg:text-[88px] leading-tight tracking-tight px-6"
+      >
+        <span className="preloader-word block">We</span>
+        <span className="preloader-word block">Knead</span>
+        <span className="preloader-word block text-accent-gold italic">Pizza</span>
+      </div>
+
+      {/* Minimal Luxury Horizontal Loader */}
+      <div className="absolute top-[65%] w-full max-w-[280px] h-[1px] bg-border-subtle overflow-hidden mx-6">
         <div
-            ref={containerRef}
-            className="fixed inset-0 z-[9999] bg-[#0A0705] flex flex-col items-center justify-center text-[#F2EDDF]"
+          ref={progressLineRef}
+          className="w-full h-full bg-accent-gold origin-left scale-x-0 relative overflow-hidden"
         >
-            <div className="flex gap-4 font-serif text-[48px] lg:text-[80px] leading-tight overflow-hidden">
-                <span ref={weRef} className="opacity-0 translate-y-5 block">We</span>
-                <span ref={kneadRef} className="opacity-0 translate-y-5 block">Knead</span>
-                <span ref={pizzaRef} className="opacity-0 translate-y-5 block">Pizza</span>
-            </div>
-
-            <div className="absolute top-[60%] w-[200px] h-[1px] bg-[rgba(242,237,223,0.15)] overflow-hidden">
-                <div
-                    ref={progressLineRef}
-                    className="w-full h-full bg-[#C9933A] origin-left scale-x-0"
-                />
-            </div>
+          {/* Shimmer Highlight */}
+          <div 
+            ref={shimmerRef}
+            className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full"
+          />
         </div>
-    );
+      </div>
+
+      {/* Cinematic Vignette Overlay */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
+    </div>
+  );
 }

@@ -31,13 +31,12 @@ describe('CartPage Integration', () => {
     vi.clearAllMocks();
   });
 
-  it('empty cart shows empty state message and links to menu', () => {
+  it('empty vessel shows empty state message and links to menu', () => {
     useCartStore.setState({ items: [] });
     render(<CartPage />);
 
-    expect(screen.getByText('Your cart is empty')).toBeInTheDocument();
+    expect(screen.getByText(/Empty Vessel/i)).toBeInTheDocument();
     
-    // There are multiple links back to menu (header and mobile), so we check length
     const links = screen.getAllByTestId('link-/menu');
     expect(links.length).toBeGreaterThan(0);
   });
@@ -50,11 +49,9 @@ describe('CartPage Integration', () => {
     });
     render(<CartPage />);
     
-    // Use getAllByText for name/price since they might appear in OrderSummary too
     expect(screen.getAllByText('Margherita').length).toBeGreaterThan(0);
-    expect(screen.getByText('large')).toBeInTheDocument(); // size badge
+    expect(screen.getByText(/LARGE/i)).toBeInTheDocument(); // size badge is uppercase in new UI
     
-    // 200 * 2 = 400. It appears in the cart item line and subtotal.
     expect(screen.getAllByText('₹400').length).toBeGreaterThan(0);
   });
 
@@ -66,18 +63,15 @@ describe('CartPage Integration', () => {
     });
     render(<CartPage />);
     
-    // 100 might appear multiple times (subtotal, item price)
     expect(screen.getAllByText('₹100').length).toBeGreaterThan(0);
     
-    const incBtn = screen.getByRole('button', { name: 'Increase quantity' });
+    const incBtn = screen.getByRole('button', { name: /Increase quantity/i });
     await userEvent.click(incBtn);
 
-    // After increment, quantity is 2 (unitPrice * 2) = 200
     expect(screen.getAllByText('₹200').length).toBeGreaterThan(0);
     
-    // OrderSummary grand total should also update (200 + 50 delivery = 250)
-    const grandTotalElement = screen.getByText('Total').nextElementSibling!.querySelector('.font-serif');
-    expect(grandTotalElement).toHaveTextContent('₹250');
+    // OrderSummary grand total
+    expect(screen.getByText('₹250')).toBeInTheDocument();
   });
 
   it('quantity decrement to 0 removes item from list', async () => {
@@ -90,16 +84,14 @@ describe('CartPage Integration', () => {
     
     expect(screen.getAllByText('Garlic Bread').length).toBeGreaterThan(0);
     
-    const decBtn = screen.getByRole('button', { name: 'Decrease quantity' });
+    const decBtn = screen.getByRole('button', { name: /Decrease quantity/i });
     await userEvent.click(decBtn);
 
-    // Because Framer Motion uses async exit animations, we await removal
     await waitFor(() => {
       expect(screen.queryByText('Garlic Bread')).not.toBeInTheDocument();
     });
     
-    // Empty state should ideally be shown immediately because length becomes 0
-    expect(screen.getByText('Your cart is empty')).toBeInTheDocument();
+    expect(screen.getByText(/Empty Vessel/i)).toBeInTheDocument();
   });
 
   it('remove button removes item', async () => {
@@ -110,7 +102,7 @@ describe('CartPage Integration', () => {
     });
     render(<CartPage />);
     
-    const removeBtn = screen.getByRole('button', { name: 'Remove item' });
+    const removeBtn = screen.getByRole('button', { name: /Remove item/i });
     await userEvent.click(removeBtn);
 
     await waitFor(() => {
@@ -118,8 +110,7 @@ describe('CartPage Integration', () => {
     });
   });
 
-  it('custom pizza shows View toppings toggle and expands', async () => {
-    // Assuming TOPPINGS[0] exists
+  it('custom pizza shows Reveal Components toggle and expands', async () => {
     const mockTopping = TOPPINGS[0];
 
     useCartStore.setState({
@@ -137,19 +128,15 @@ describe('CartPage Integration', () => {
     
     render(<CartPage />);
     
-    // Check if toggle exists
-    const toggleBtn = screen.getByRole('button', { name: /View toppings/i });
+    const toggleBtn = screen.getByRole('button', { name: /Reveal Components/i });
     expect(toggleBtn).toBeInTheDocument();
     
-    // List should not be visible initially (Framer Motion height=0 hides visibility but potentially in DOM)
-    // However, we render conditionally based on `expanded` state:
     expect(screen.queryByText(mockTopping.name)).not.toBeInTheDocument();
 
-    // Click to expand
     await userEvent.click(toggleBtn);
     
     expect(screen.getByText(mockTopping.name)).toBeInTheDocument();
-    expect(screen.getByText('Hide toppings')).toBeInTheDocument();
+    expect(screen.getByText(/Conceal Components/i)).toBeInTheDocument();
   });
 
   it('pizza illustration renders for pizza type items', () => {

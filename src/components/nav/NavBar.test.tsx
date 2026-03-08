@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NavBar from './NavBar';
 import { useCartStore } from '@/store/useCartStore';
@@ -112,10 +112,10 @@ describe('NavBar integration', () => {
     expect(logo).toHaveAttribute('href', '/');
   });
 
-  it('desktop: renders Menu and Build Your Pizza links', () => {
+  it('desktop: renders Collection and Configurator links', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: /^menu$/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /build your pizza/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Collection/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Configurator/i })).toBeInTheDocument();
   });
 
   it('renders hamburger button', () => {
@@ -127,16 +127,16 @@ describe('NavBar integration', () => {
     render(<NavBar />);
     const hamburger = screen.getByTestId('hamburger-btn');
     await userEvent.click(hamburger);
-    // MobileDrawer should be open and show Home link
-    expect(screen.getByRole('link', { name: /^home$/i })).toBeInTheDocument();
+    // MobileDrawer should be open and show Foundation link
+    expect(screen.getByRole('link', { name: /Foundation/i })).toBeInTheDocument();
   });
 
   it('drawer close button closes drawer', async () => {
     render(<NavBar />);
     await userEvent.click(screen.getByTestId('hamburger-btn'));
-    expect(screen.getByRole('button', { name: 'Close menu' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Close menu' }));
-    expect(screen.queryByRole('button', { name: 'Close menu' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Close navigation/i })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Close navigation/i }));
+    expect(screen.queryByRole('button', { name: /Close navigation/i })).not.toBeInTheDocument();
   });
 
   it('backdrop click closes drawer', async () => {
@@ -145,21 +145,22 @@ describe('NavBar integration', () => {
 
     const backdrop = screen.getByTestId('drawer-backdrop');
     await userEvent.click(backdrop);
-    expect(screen.queryByTestId('drawer-backdrop')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('drawer-backdrop')).not.toBeInTheDocument();
+    });
   });
 
   it('mobile: navigating to a link closes drawer', async () => {
     render(<NavBar />);
     await userEvent.click(screen.getByTestId('hamburger-btn'));
 
-    // Click the Menu link inside the drawer (first match could be the drawer's Menu link)
-    const menuLinks = screen.getAllByRole('link', { name: /^menu$/i });
-    // The drawer version of the link will close the drawer via onClose
-    await userEvent.click(menuLinks[menuLinks.length - 1]);
+    const collectionLinks = screen.getAllByRole('link', { name: /Collection/i });
+    // Click the last one which is in the drawer
+    await userEvent.click(collectionLinks[collectionLinks.length - 1]);
 
-    // Drawer close fires onClose, which sets drawerOpen=false
-    // Then AnimatePresence removes it (we mocked it as synchronous)
-    expect(screen.queryByRole('button', { name: 'Close menu' })).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Close navigation/i })).not.toBeInTheDocument();
+    });
   });
 
   it('cart badge shows correct count from store', () => {

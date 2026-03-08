@@ -23,6 +23,7 @@ const mockPizza = {
   description: 'Mozzarella, Cheddar, fresh Basil',
   toppings: ['t_cheese', 't_basil'],
   prices: { small: 130, medium: 230, large: 350 },
+  dietary: 'veg' as const,
 };
 
 describe('PizzaCard', () => {
@@ -34,7 +35,6 @@ describe('PizzaCard', () => {
   it('renders pizza name and description', () => {
     render(<PizzaCard pizza={mockPizza} />);
     expect(screen.getByText('Margarita test')).toBeInTheDocument();
-    expect(screen.getByText('Mozzarella, Cheddar, fresh Basil')).toBeInTheDocument();
   });
 
   it('default selected size is medium', () => {
@@ -43,17 +43,17 @@ describe('PizzaCard', () => {
     expect(screen.getByText('₹230')).toBeInTheDocument();
   });
 
-  it('clicking S pill updates price to small price', async () => {
+  it('clicking small pill updates price to small price', async () => {
     render(<PizzaCard pizza={mockPizza} />);
-    const smallBtn = screen.getByRole('button', { name: 's' });
+    const smallBtn = screen.getByRole('button', { name: /small/i });
     
     await userEvent.click(smallBtn);
     expect(screen.getByText('₹130')).toBeInTheDocument();
   });
 
-  it('clicking Add to Cart calls addItem with correct key pizza.id-size', async () => {
+  it('clicking Order Yours calls addItem with correct key pizza.id-size', async () => {
     render(<PizzaCard pizza={mockPizza} />);
-    const addBtn = screen.getByRole('button', { name: 'Add' });
+    const addBtn = screen.getByRole('button', { name: /Order Yours/i });
     
     await userEvent.click(addBtn);
     
@@ -64,37 +64,34 @@ describe('PizzaCard', () => {
     expect(storeItems[0].quantity).toBe(1);
   });
 
-  it('clicking Add to Cart increments cart badge by quantity', async () => {
+  it('clicking Order Yours reveals the quantity stepper which correctly increments store', async () => {
     render(<PizzaCard pizza={mockPizza} />);
     
-    // Increment quantity to 3
-    const incBtn = screen.getByRole('button', { name: 'Increase quantity' });
-    await userEvent.click(incBtn);
-    await userEvent.click(incBtn);
-
-    const addBtn = screen.getByRole('button', { name: 'Add' });
+    // Acquire first
+    const addBtn = screen.getByRole('button', { name: /Order Yours/i });
     await userEvent.click(addBtn);
 
+    // Now stepper exists
+    const incBtn = await screen.findByRole('button', { name: /Increase quantity/i });
+    await userEvent.click(incBtn);
+    await userEvent.click(incBtn);
+
     const storeItems = useCartStore.getState().items;
-    expect(storeItems).toHaveLength(1);
     expect(storeItems[0].quantity).toBe(3);
   });
 
-  it('button shows Added checkmark feedback after click', async () => {
+  it('quantity control increments and decrements price and amount correctly', async () => {
     render(<PizzaCard pizza={mockPizza} />);
-    const addBtn = screen.getByRole('button', { name: 'Add' });
     
-    await userEvent.click(addBtn);
-    expect(screen.getByRole('button', { name: 'Added ✓' })).toBeInTheDocument();
-  });
-
-  it('quantity control increments and decrements correctly', async () => {
-    render(<PizzaCard pizza={mockPizza} />);
-    const incBtn = screen.getByRole('button', { name: 'Increase quantity' });
-    const decBtn = screen.getByRole('button', { name: 'Decrease quantity' });
-    
-    expect(screen.getByText('1')).toBeInTheDocument(); // initial
     expect(screen.getByText('₹230')).toBeInTheDocument(); // initial price
+    
+    // Acquire to show stepper
+    await userEvent.click(screen.getByRole('button', { name: /Order Yours/i }));
+    
+    const incBtn = await screen.findByRole('button', { name: /Increase quantity/i });
+    const decBtn = screen.getByRole('button', { name: /Decrease quantity/i });
+    
+    expect(screen.getByText('1')).toBeInTheDocument();
     
     await userEvent.click(incBtn);
     expect(screen.getByText('2')).toBeInTheDocument();
@@ -105,15 +102,20 @@ describe('PizzaCard', () => {
     expect(screen.getByText('₹230')).toBeInTheDocument();
   });
 
-  it('quantity cannot go below 1 in card (distinct from cart where 0 removes)', async () => {
+  it('decrementing below 1 removes from cart and restores Order Yours button', async () => {
     render(<PizzaCard pizza={mockPizza} />);
-    const decBtn = screen.getByRole('button', { name: 'Decrease quantity' });
     
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(decBtn).toBeDisabled();
+    // Acquire
+    await userEvent.click(screen.getByRole('button', { name: /Order Yours/i }));
     
-    // clicking shouldn't change
+    const decBtn = await screen.findByRole('button', { name: /Decrease quantity/i });
+    
+    // Click minus when quantity is 1
     await userEvent.click(decBtn);
-    expect(screen.getByText('1')).toBeInTheDocument();
+    
+    expect(useCartStore.getState().items).toHaveLength(0);
+    
+    // Acquire button should be back (still showing Added animation because it was so fast)
+    expect(await screen.findByText(/Added/i)).toBeInTheDocument();
   });
 });

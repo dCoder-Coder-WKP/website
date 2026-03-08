@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useRef, useEffect, useCallback } from 'react';
@@ -11,26 +12,16 @@ export interface HeroVisualProps {
   active?: boolean;
 }
 
-const HERO_TOPPING_IDS = ['t_basil', 't_tomato', 't_olive', 't_mushroom', 't_pepperoni'];
+const HERO_TOPPING_IDS = ['t_cheese', 't_chicken', 't_redpepper', 't_basil', 't_olives'];
 
 export default function HeroVisual({ active = false }: HeroVisualProps) {
   const heroSectionRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const bloomRef = useRef<HTMLDivElement>(null);
   const pizzaWrapRef = useRef<HTMLDivElement>(null);
   const steamRef = useRef<SVGSVGElement>(null);
-  const flecksRef = useRef<HTMLDivElement>(null);
+  const bokehRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const scrollLineRef = useRef<HTMLDivElement>(null);
-
-  // Steam wisp paths
-  const steamPaths = [
-    "M80,80 C75,65 85,55 80,45 C75,35 85,25 80,15",
-    "M90,80 C88,68 93,60 89,50 C85,40 91,32 88,22",
-    "M100,80 C105,65 95,50 102,40 C108,30 95,20 100,10",
-    "M110,80 C113,68 105,58 111,48 C117,38 105,28 110,18",
-    "M120,80 C125,65 115,55 122,45 C128,35 115,25 120,15",
-    "M95,80 C90,68 100,55 94,45 C88,35 100,25 96,15"
-  ];
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
 
   const startSteamAnimations = useCallback(() => {
     if (!steamRef.current) return;
@@ -46,125 +37,112 @@ export default function HeroVisual({ active = false }: HeroVisualProps) {
           }
         });
 
-        // Step 1: Draw on
         tl.fromTo(path,
-          { strokeDasharray: len, strokeDashoffset: len, opacity: 1, y: 0 },
-          { strokeDashoffset: 0, duration: 1.8, ease: "power1.inOut" }
+          { strokeDasharray: len, strokeDashoffset: len, opacity: 0.8, y: 0 },
+          { strokeDashoffset: 0, duration: 2.5, ease: "power1.inOut" }
         )
-        // Step 2: Float and fade
         .to(path,
-          { y: -30, opacity: 0, duration: 1.2, ease: "power1.in" },
-          "-=0.6" // Overlap slightly with drawing
+          { y: -50, opacity: 0, duration: 1.5, ease: "power1.in" },
+          "-=1.0"
         );
       };
 
-      gsap.delayedCall(i * 0.4, animateWisp);
+      gsap.delayedCall(i * 0.8, animateWisp);
     });
   }, []);
 
-  const startFleckAnimations = useCallback(() => {
-    if (!flecksRef.current) return;
-    const flecks = Array.from(flecksRef.current.children);
+  const startBokehAnimations = useCallback(() => {
+    if (!bokehRef.current) return;
+    const particles = Array.from(bokehRef.current.children);
     
-    flecks.forEach(fleck => {
-      gsap.to(fleck, {
-        y: "random(-12, 12)",
-        x: "random(-8, 8)",
-        rotation: "random(-15, 15)",
-        duration: "random(4, 7)",
+    particles.forEach((p, i) => {
+      gsap.to(p, {
+        y: "random(-60, 60)",
+        x: "random(-40, 40)",
+        scale: "random(0.8, 1.2)",
+        opacity: "random(0.1, 0.3)",
+        duration: "random(6, 12)",
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        delay: "random(0, 3)"
+        delay: i * 0.2
       });
     });
   }, []);
 
-  // Entry Timeline
   useEffect(() => {
     if (!active) return;
     
-    // Set initial before animate
-    gsap.set(textRef.current, { opacity: 0, y: 40 });
+    gsap.set(textRef.current, { opacity: 0, y: 30 });
     
     const tl = gsap.timeline();
 
     tl.to(pizzaWrapRef.current, {
-      opacity: 1, scale: 1, duration: 1.0, ease: "cubic-bezier(0.16,1,0.3,1)"
+      opacity: 1, scale: 1, duration: 1.5, ease: "premium"
     })
-    .fromTo(pizzaWrapRef.current, 
-      { scale: 0.92 }, 
-      { scale: 1, duration: 1.0, ease: "cubic-bezier(0.16,1,0.3,1)" }, 
-      "<"
-    )
-    .to(glowRef.current, { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.3)
-    .to(textRef.current, { opacity: 1, y: 0, duration: 0.7, ease: "cubic-bezier(0.16,1,0.3,1)" }, 0.5)
+    .to(bloomRef.current, { opacity: 0.4, duration: 2, ease: "power2.out" }, 0.2)
+    .to(textRef.current, { opacity: 1, y: 0, duration: 1, ease: "premium" }, 0.4)
     .call(() => {
-      gsap.to(steamRef.current, { opacity: 1, duration: 0.5 });
+      gsap.to(steamRef.current, { opacity: 0.3, duration: 1 });
       startSteamAnimations();
-    }, [], 1.2)
-    .call(startFleckAnimations, [], 1.5)
-    .fromTo(scrollLineRef.current,
-      { scaleY: 0 },
-      { scaleY: 1, duration: 0.8, ease: "cubic-bezier(0.16,1,0.3,1)" },
-      1.8
+    }, [], 1.0)
+    .call(startBokehAnimations, [], 1.2)
+    .fromTo(scrollIndicatorRef.current,
+      { scaleY: 0, opacity: 0 },
+      { scaleY: 1, opacity: 1, duration: 1.2, ease: "premium" },
+      1.5
     )
     .call(() => {
-      gsap.to(glowRef.current, {
-        opacity: 0.7, scale: 1.08, duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut"
+      gsap.to(bloomRef.current, {
+        opacity: 0.5, scale: 1.1, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut"
       });
     }, [], 1.5);
 
+    const currentSteam = steamRef.current;
+    const currentBokeh = bokehRef.current;
+
     return () => {
       tl.kill();
-      gsap.killTweensOf(steamRef.current?.querySelectorAll('path') || []);
-      gsap.killTweensOf(flecksRef.current?.children || []);
+      if (currentSteam) {
+        gsap.killTweensOf(currentSteam.querySelectorAll('path'));
+      }
+      if (currentBokeh) {
+        gsap.killTweensOf(currentBokeh.children);
+      }
     };
-  }, [active, startSteamAnimations, startFleckAnimations]);
+  }, [active, startSteamAnimations, startBokehAnimations]);
 
-  // Scroll Parallax
   useEffect(() => {
     if (!heroSectionRef.current) return;
     
-    // Create ScrollTriggers separately so we can kill them easily
     const ctx = gsap.context(() => {
       gsap.to(pizzaWrapRef.current, {
-        y: -80,
+        y: -100,
         scrollTrigger: {
           trigger: heroSectionRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1
+          scrub: true
         }
       });
 
-      gsap.to(glowRef.current, {
+      gsap.to(bloomRef.current, {
         opacity: 0,
         scrollTrigger: {
           trigger: heroSectionRef.current,
-          start: "20% top",
-          end: "80% top",
-          scrub: 1
+          start: "10% top",
+          end: "70% top",
+          scrub: true
         }
       });
 
       gsap.to(textRef.current, {
-        y: -50, opacity: 0,
-        scrollTrigger: {
-          trigger: heroSectionRef.current,
-          start: "10% top",
-          end: "60% top",
-          scrub: 1
-        }
-      });
-
-      gsap.to(steamRef.current, {
-        opacity: 0,
+        y: -100, opacity: 0,
         scrollTrigger: {
           trigger: heroSectionRef.current,
           start: "5% top",
-          end: "40% top",
-          scrub: 1
+          end: "50% top",
+          scrub: true
         }
       });
     });
@@ -172,128 +150,118 @@ export default function HeroVisual({ active = false }: HeroVisualProps) {
     return () => ctx.revert();
   }, []);
 
-  return (
-    <div ref={heroSectionRef} className="relative w-full h-screen overflow-hidden bg-[#0A0705]">
-      {/* GLOW HALO */}
-      <div 
-        ref={glowRef}
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 60% 55% at 72% 52%, rgba(232,84,10,0.14) 0%, rgba(201,147,58,0.06) 40%, transparent 70%)",
-          opacity: 0
-        }}
-      />
+  const bokehParticles = Array.from({ length: 15 }).map((_, i) => (
+    <div
+      key={i}
+      className="absolute rounded-full pointer-events-none"
+      style={{
+        width: `${Math.random() * 10 + 4}px`,
+        height: `${Math.random() * 10 + 4}px`,
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        background: 'radial-gradient(circle, var(--accent-gold) 0%, transparent 70%)',
+        opacity: 0.15,
+        filter: 'blur(2px)'
+      }}
+    />
+  ));
 
-      {/* PIZZA ILLUSTRATION AND STEAM */}
+  return (
+    <div ref={heroSectionRef} className="relative w-full h-screen overflow-hidden bg-bg-base">
+      {/* CINEMATIC HERO PHOTOGRAPHY */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=2000&auto=format&fit=crop"
+          alt="Artisanal Service"
+          className="w-full h-full object-cover opacity-40 mix-blend-luminosity grayscale-[0.3] brightness-[0.7]"
+        />
+        {/* Deep Vignette Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-bg-base via-transparent to-bg-base opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-bg-base opacity-80" />
+      </div>
+
+      {/* CINEMATIC BLOOM */}
+
+      {/* PIZZA VISUAL & STEAM */}
       <div 
         ref={pizzaWrapRef}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:left-auto lg:right-[-4%] lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 w-[90vw] max-w-[520px] lg:w-[58vw] lg:max-w-[740px]"
-        style={{ opacity: 0 }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:left-auto lg:right-[0%] lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 w-[90vw] max-w-[500px] lg:w-[55vw] lg:max-w-[800px]"
+        style={{ opacity: 0, scale: 0.95 }}
       >
-        <PizzaIllustration
-          toppingIds={HERO_TOPPING_IDS}
-          size="hero"
-          animate={false}
-          interactive={false}
-        />
+        <div className="relative group">
+          <div className="absolute -inset-20 bg-accent-gold/20 blur-[120px] opacity-0 group-hover:opacity-30 transition-opacity duration-long" />
+          <PizzaIllustration
+            toppingIds={HERO_TOPPING_IDS}
+            size="hero"
+            animate
+            interactive
+            seed={123}
+          />
+        </div>
         
-        {/* STEAM WISPS */}
         <svg 
           ref={steamRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox="0 0 200 200"
           style={{ opacity: 0 }}
         >
-          {steamPaths.map((d, i) => (
-            <path key={i} d={d} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+          {[
+            "M80,80 C75,65 85,55 80,45 C75,35 85,25 80,15",
+            "M100,80 C105,65 95,50 102,40 C108,30 95,20 100,10",
+            "M120,80 C125,65 115,55 122,45 C128,35 115,25 120,15"
+          ].map((d, i) => (
+            <path key={i} d={d} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeLinecap="round" strokeDasharray="4 4" />
           ))}
         </svg>
       </div>
 
-      {/* FLOATING INGREDIENT FLECKS */}
-      <div ref={flecksRef} className="absolute inset-0 pointer-events-none">
-        {/* Top-right: tiny basil leaf SVG, 14px, opacity 0.2, rotate 23deg */}
-        <svg viewBox="-5 -5 10 10" className="absolute top-[15%] right-[20%] w-[14px] h-[14px] opacity-20" style={{ transform: 'rotate(23deg)' }}>
-          <path d="M0,-5 C3,-3 3,1 0,3 C-3,1 -3,-3 0,-5" fill="#2D5A1B" />
-        </svg>
-        
-        {/* Top-left area: 3-dot corn cluster, 10px, opacity 0.18 */}
-        <svg viewBox="-3 -3 6 6" className="absolute top-[25%] left-[25%] lg:left-[45%] w-[10px] h-[10px] opacity-[0.18]">
-          <circle cx={0} cy={-1.5} r={1.6} fill="#F4C430" />
-          <circle cx={-1.4} cy={1} r={1.6} fill="#E8B820" />
-          <circle cx={1.4} cy={1} r={1.6} fill="#F4C430" />
-        </svg>
-        
-        {/* Bottom-right corner: small olive circle, 8px, opacity 0.15 */}
-        <svg viewBox="-4 -4 8 8" className="absolute bottom-[20%] right-[10%] lg:right-[30%] w-[8px] h-[8px] opacity-15">
-          <circle r={3.2} fill="#2A1A35" />
-          <circle r={1.1} cx={-0.4} cy={-0.4} fill="#5A3A6A" opacity={0.7} />
-        </svg>
-        
-        {/* Mid-right: capsicum sliver, 12px, opacity 0.2, rotate -45deg */}
-        <svg viewBox="-5 -5 10 10" className="absolute top-[50%] right-[5%] w-[12px] h-[12px] opacity-20" style={{ transform: 'rotate(-45deg)' }}>
-          <path d="M-4,0 Q-1,-3 4,0 Q-1,3 -4,0" fill="#2D8A1F" stroke="#1A5C10" strokeWidth="0.3" />
-        </svg>
-        
-        {/* Top-center-right: tiny pepper disc, 6px, opacity 0.15 */}
-        <svg viewBox="-6 -6 12 12" className="absolute top-[10%] right-[40%] w-[6px] h-[6px] opacity-15">
-          <circle r={5.5} fill="#8B1A1A" />
-        </svg>
-        
-        {/* Bottom-left: mushroom shape, 10px, opacity 0.18 */}
-        <svg viewBox="-5 -5 10 10" className="absolute bottom-[30%] left-[10%] lg:left-[35%] w-[10px] h-[10px] opacity-[0.18]">
-          <path d="M-3.5,1 A4,3.5 0 0,1 3.5,1 L2.5,2 L-2.5,2 Z" fill="#9B8572" />
-          <rect x={-0.8} y={1} width={1.6} height={1.5} fill="#7A6555" />
-        </svg>
-        
-        {/* Upper-left: herb dot, 5px circle, opacity 0.12 */}
-        <svg viewBox="-3 -3 6 6" className="absolute top-[40%] left-[15%] w-[5px] h-[5px] opacity-12">
-          <circle r={2.5} fill="#5A3A6A" />
-        </svg>
-        
-        {/* Right-middle-low: tiny paneer square, 7px, opacity 0.15 */}
-        <svg viewBox="-4 -4 8 8" className="absolute bottom-[40%] right-[15%] w-[7px] h-[7px] opacity-15">
-          <rect x={-3} y={-2} width={6} height={4} rx={0.8} fill="#F0EAD6" />
-        </svg>
+      {/* BOKEH PARTICLES */}
+      <div ref={bokehRef} className="absolute inset-0 pointer-events-none overflow-hidden">
+        {bokehParticles}
       </div>
 
-      {/* RADIAL SCORE LINES (Desktop only) */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04] hidden lg:block" style={{ stroke: "#C9933A", strokeWidth: 1 }}>
-        {[0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5].map((angle, i) => {
-          // Center matches halo approx 72% w, 52% h
-          const cx = '72%';
-          const cy = '52%';
-          return <line key={i} x1={cx} y1={cy} x2="150%" y2={cy} style={{ transformOrigin: `${cx} ${cy}`, transform: `rotate(${angle}deg)` }} />;
-        })}
+      {/* EDITORIAL RADIAL ACCENTS */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05] hidden lg:block" style={{ stroke: "var(--accent-gold)", strokeWidth: 0.5 }}>
+        {[0, 45, 90, 135].map((angle) => (
+          <line 
+            key={angle} 
+            x1="75%" y1="50%" x2="150%" y2="50%" 
+            style={{ transformOrigin: "75% 50%", transform: `rotate(${angle}deg)` }} 
+          />
+        ))}
+        <circle cx="75%" cy="50%" r="20%" fill="none" />
+        <circle cx="75%" cy="50%" r="30%" fill="none" strokeDasharray="4 8" />
       </svg>
 
-      {/* HERO TEXT */}
+      {/* HERO COPY */}
       <div 
         ref={textRef}
-        className="absolute z-10 bottom-24 left-6 lg:top-1/2 lg:-translate-y-1/2 lg:left-20 lg:bottom-auto"
+        className="absolute z-10 bottom-24 px-6 lg:top-1/2 lg:-translate-y-1/2 lg:left-24 lg:bottom-auto max-w-2xl"
         style={{ opacity: 0 }}
       >
-        <h1 className="font-serif text-[52px] lg:text-[96px] leading-[1.0] tracking-[-0.03em] text-[#F2EDDF]">
-          We Knead<br/>Pizza
+        <h1 className="heading-hero text-text-primary mb-6">
+          Artisanal<br/>Perfection
         </h1>
-        <p className="mt-4 font-sans text-base lg:text-xl text-[#8C7E6A]">
-          Crafted with obsession.
+        <p className="font-sans text-text-secondary text-lg lg:text-2xl mb-12 tracking-wide font-light leading-relaxed">
+          Crafted with obsession. Designed for those who<br className="hidden lg:block" /> appreciate the finer details of the craft.
         </p>
-        <a 
-          href="/menu"
-          className="mt-6 inline-block px-7 py-3 border border-[rgba(242,237,223,0.3)] text-[#F2EDDF] font-sans text-sm tracking-wide hover:border-[#C9933A] hover:text-[#C9933A] transition-colors duration-300"
-        >
-          Explore the Menu
-        </a>
+        <div className="flex flex-wrap gap-6">
+          <a href="/menu" className="btn-luxury">
+            Explore the Menu
+          </a>
+          <a href="/build" className="btn-luxury-outline">
+            Craft Yours
+          </a>
+        </div>
       </div>
 
       {/* SCROLL INDICATOR */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <span className="block font-sans text-[10px] tracking-[0.2em] text-[#8C7E6A] mb-2 text-center">SCROLL</span>
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-4">
+        <span className="font-sans text-[10px] tracking-luxury text-text-muted uppercase">Scroll</span>
         <div 
-          ref={scrollLineRef}
-          className="w-px h-12 bg-[rgba(242,237,223,0.2)] mx-auto"
-          style={{ transformOrigin: "top", transform: "scaleY(0)" }}
+          ref={scrollIndicatorRef}
+          className="w-[1px] h-16 bg-border-refined origin-top"
+          style={{ opacity: 0 }}
         />
       </div>
     </div>

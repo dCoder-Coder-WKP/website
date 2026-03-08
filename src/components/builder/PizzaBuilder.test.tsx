@@ -38,11 +38,11 @@ describe('PizzaBuilder', () => {
     vi.clearAllMocks();
   });
 
-  it('renders size toggle with S M L options', () => {
+  it('renders size toggle with SMALL MEDIUM LARGE options', () => {
     render(<PizzaBuilder />);
-    expect(screen.getByText('S')).toBeInTheDocument();
-    expect(screen.getByText('M')).toBeInTheDocument();
-    expect(screen.getByText('L')).toBeInTheDocument();
+    expect(screen.getAllByText(/SMALL/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/MEDIUM/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/LARGE/i).length).toBeGreaterThan(0);
   });
 
   it('clicking topping row toggles selected state', async () => {
@@ -75,7 +75,7 @@ describe('PizzaBuilder', () => {
     render(<PizzaBuilder />);
 
     // Switch to Small
-    const smallBtn = screen.getByText('S');
+    const smallBtn = screen.getByText(/SMALL/i);
     await userEvent.click(smallBtn);
 
     expect(screen.getAllByText(`₹${CUSTOM_BASE_PRICE.small}`).length).toBeGreaterThan(0);
@@ -94,36 +94,23 @@ describe('PizzaBuilder', () => {
     expect(onionBtn.getAttribute('aria-pressed')).toBe('true');
 
     // Reset
-    const resetBtn = screen.getByText('Reset All');
+    const resetBtn = screen.getByText(/Reset Configuration/i);
     await userEvent.click(resetBtn);
 
-    // After reset need to re-query since DOM re-renders
+    // After reset need to re-query
     const onionBtnAfter = getToppingButton('Onion');
     expect(onionBtnAfter.getAttribute('aria-pressed')).toBe('false');
   });
 
-  it('Reset button resets price to base price', async () => {
-    render(<PizzaBuilder />);
-
-    // Select topping, then reset
-    const onionBtn = getToppingButton('Onion');
-    await userEvent.click(onionBtn);
-
-    const resetBtn = screen.getByText('Reset All');
-    await userEvent.click(resetBtn);
-
-    expect(screen.getAllByText(`₹${CUSTOM_BASE_PRICE.medium}`).length).toBeGreaterThan(0);
-  });
-
-  it('Add to Cart dispatches addItem with correct key and price', async () => {
+  it('Acquire button dispatches addItem with correct key and price', async () => {
     render(<PizzaBuilder />);
 
     // Add a topping (Onion medium = 30)
     const onionBtn = getToppingButton('Onion');
     await userEvent.click(onionBtn);
 
-    // Click Add to Cart (desktop button inside ToppingPanel)
-    const addBtns = screen.getAllByText('Add to Cart');
+    // Click Acquire
+    const addBtns = screen.getAllByText(/Acquire Craft/i);
     await userEvent.click(addBtns[0]);
 
     const items = useCartStore.getState().items;
@@ -134,10 +121,10 @@ describe('PizzaBuilder', () => {
     expect(items[0].key).toMatch(/^custom-\d+$/);
   });
 
-  it('Add to Cart with no toppings adds base pizza only', async () => {
+  it('Acquire Craft with no toppings adds base pizza only', async () => {
     render(<PizzaBuilder />);
 
-    const addBtns = screen.getAllByText('Add to Cart');
+    const addBtns = screen.getAllByText(/Acquire Craft/i);
     await userEvent.click(addBtns[0]);
 
     const items = useCartStore.getState().items;

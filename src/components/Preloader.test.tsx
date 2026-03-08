@@ -13,6 +13,8 @@ vi.mock('gsap', () => {
                 }
                 return {
                     to: vi.fn().mockReturnThis(),
+                    fromTo: vi.fn().mockReturnThis(),
+                    add: vi.fn().mockReturnThis(),
                 };
             }),
         },

@@ -47,7 +47,7 @@ describe('ClientShell / Layout', () => {
   });
 
   it('Preloader does not render if sessionStorage flag present', () => {
-    sessionStorage.setItem('wkp-preloader-seen', '1');
+    sessionStorage.setItem('wkp-loaded', '1');
     render(
       <ClientShell>
         <div>Page Content</div>
@@ -57,7 +57,7 @@ describe('ClientShell / Layout', () => {
   });
 
   it('children always rendered in shell', () => {
-    sessionStorage.setItem('wkp-preloader-seen', '1');
+    sessionStorage.setItem('wkp-loaded', '1');
     render(
       <ClientShell>
         <div data-testid="page-content">Page Content</div>
@@ -67,7 +67,7 @@ describe('ClientShell / Layout', () => {
   });
 
   it('OrderModal renders when modalOpen is true in store', async () => {
-    sessionStorage.setItem('wkp-preloader-seen', '1');
+    sessionStorage.setItem('wkp-loaded', '1');
     
     render(
       <ClientShell>
