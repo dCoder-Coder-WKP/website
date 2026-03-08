@@ -16,41 +16,41 @@ interface OrderRequest {
   claimedTotal: number;
 }
 
-// Lock CORS to the actual production domain via env var.
-// Set ALLOWED_ORIGIN in Supabase Edge Function secrets.
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://wekneadpizza.com';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+function getCorsHeaders(req: Request) {
+  // Allow requests from all origins (localhost, vercel previews, etc) for checkout validation
+  const origin = req.headers.get('Origin') ?? '*';
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
 
 const MAX_ITEMS = 50;
 const MAX_BODY_SIZE_BYTES = 16_384; // 16 KB
 
-function errorResponse(message: string, status = 400): Response {
+function errorResponse(message: string, req: Request, status = 400): Response {
   // Never expose internal details — just return a generic message in production.
   return new Response(
     JSON.stringify({ error: message }),
-    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    { status, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } },
   );
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(req) });
   }
 
   // Only allow POST
   if (req.method !== 'POST') {
-    return errorResponse('Method not allowed', 405);
+    return errorResponse('Method not allowed', req, 405);
   }
 
   // Guard against oversized payloads
   const contentLength = parseInt(req.headers.get('content-length') ?? '0', 10);
   if (contentLength > MAX_BODY_SIZE_BYTES) {
-    return errorResponse('Request body too large', 413);
+    return errorResponse('Request body too large', req, 413);
   }
 
   try {
@@ -63,7 +63,7 @@ serve(async (req) => {
     try {
       body = await req.json();
     } catch {
-      return errorResponse('Invalid JSON body', 400);
+      return errorResponse('Invalid JSON body', req, 400);
     }
 
     // Input validation
@@ -73,21 +73,21 @@ serve(async (req) => {
       !Array.isArray((body as OrderRequest).items) ||
       typeof (body as OrderRequest).claimedTotal !== 'number'
     ) {
-      return errorResponse('Invalid request shape', 400);
+      return errorResponse('Invalid request shape', req, 400);
     }
 
     const { items, claimedTotal } = body as OrderRequest;
 
     if (items.length === 0) {
-      return errorResponse('Order must contain at least one item', 400);
+      return errorResponse('Order must contain at least one item', req, 400);
     }
 
     if (items.length > MAX_ITEMS) {
-      return errorResponse('Order contains too many items', 400);
+      return errorResponse('Order contains too many items', req, 400);
     }
 
     if (claimedTotal < 0) {
-      return errorResponse('Invalid total', 400);
+      return errorResponse('Invalid total', req, 400);
     }
 
     let calculatedTotal = 0;
@@ -95,20 +95,20 @@ serve(async (req) => {
     for (const item of items) {
       // Validate each item
       if (typeof item.name !== 'string' || item.name.length === 0 || item.name.length > 200) {
-        return errorResponse('Invalid item name', 400);
+        return errorResponse('Invalid item name', req, 400);
       }
       if (typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 20) {
-        return errorResponse('Invalid item quantity', 400);
+        return errorResponse('Invalid item quantity', req, 400);
       }
       if (!['pizza', 'extra', 'topping'].includes(item.type)) {
-        return errorResponse('Invalid item type', 400);
+        return errorResponse('Invalid item type', req, 400);
       }
 
       let dbPrice = 0;
 
       if (item.type === 'pizza') {
         if (!item.size || !['small', 'medium', 'large'].includes(item.size)) {
-          return errorResponse('Pizza size is required', 400);
+          return errorResponse('Pizza size is required', req, 400);
         }
 
         const { data, error } = await supabaseClient
@@ -118,7 +118,7 @@ serve(async (req) => {
           .eq('is_active', true)
           .single();
 
-        if (error || !data) return errorResponse('Item not found', 404);
+        if (error || !data) return errorResponse('Item not found', req, 404);
 
         if (item.size === 'small') dbPrice = data.price_small;
         else if (item.size === 'medium') dbPrice = data.price_medium;
@@ -133,7 +133,7 @@ serve(async (req) => {
           .eq('is_active', true)
           .single();
 
-        if (error || !data) return errorResponse('Item not found', 404);
+        if (error || !data) return errorResponse('Item not found', req, 404);
         dbPrice = data.price;
       }
 
@@ -150,12 +150,12 @@ serve(async (req) => {
         claimedTotal,
         verified: true,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } },
     );
 
   } catch (_err) {
     // Do not expose internal error details in production
     console.error('[validate-order] Internal error:', _err);
-    return errorResponse('Internal server error', 500);
+    return errorResponse('Internal server error', req, 500);
   }
 });
