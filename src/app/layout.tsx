@@ -5,7 +5,7 @@ import NavBar from '@/components/nav/NavBar';
 import Footer from '@/components/home/Footer';
 import ClientShell from '@/components/ClientShell';
 import NotificationBanner from '@/components/NotificationBanner';
-import { fetchNotifications } from '@/lib/api';
+import { fetchNotifications, fetchSiteConfig } from '@/lib/api';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -54,14 +54,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const notifications = await fetchNotifications();
+  const [notifications, config] = await Promise.all([
+    fetchNotifications(),
+    fetchSiteConfig()
+  ]);
 
   return (
     <html lang="en">
       <body
         className={`${cormorant.variable} ${outfit.variable} font-sans antialiased bg-bg-base text-text-primary`}
       >
-        <NavBar />
+        <NavBar logoUrl={config?.logo_url} />
         <ClientShell>
           <div className="relative min-h-screen flex flex-col">
              {/* Global Noise Grain Overlay for texture */}

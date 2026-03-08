@@ -11,11 +11,15 @@ export const metadata = {
   description: 'Freshly kneaded, hand-tossed pizza baked daily in Carona, Goa. Generous toppings, honest ingredients. Dine-in, takeaway & delivery.',
 };
 
-export default function HomePage() {
+import { fetchSiteConfig } from '@/lib/api';
+
+export default async function HomePage() {
+  const config = await fetchSiteConfig();
+
   return (
     <main className="min-h-screen bg-bg-base w-full overflow-hidden">
-      <Hero />
-      <DoughSection />
+      <Hero heroBgUrl={config?.hero_bg_url} />
+      <DoughSection doughImgUrl={config?.dough_img_url} />
       <MenuSection />
       <IngredientShowcase />
       <AnimatedStats />

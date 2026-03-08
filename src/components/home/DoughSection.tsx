@@ -4,7 +4,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function DoughSection() {
+export default function DoughSection({ doughImgUrl }: { doughImgUrl?: string }) {
 
   return (
     <section id="dough" className="py-24 lg:py-32 bg-bg-base relative overflow-hidden">
@@ -52,7 +52,7 @@ export default function DoughSection() {
           >
             <div className="relative h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-border-refined group">
               <img 
-                src="https://images.unsplash.com/photo-1555072956-7758afb20e8f?q=80&w=1500&auto=format&fit=crop"
+                src={doughImgUrl || "https://images.unsplash.com/photo-1555072956-7758afb20e8f?q=80&w=1500&auto=format&fit=crop"}
                 alt="Artisanal Dough"
                 className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] brightness-75 group-hover:scale-105 transition-transform duration-ultra"
               />

@@ -15,6 +15,10 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
             include: ['src/components/**/*.tsx', 'src/app/**/*.tsx']
+        },
+        env: {
+            NEXT_PUBLIC_SUPABASE_URL: 'https://test.supabase.co',
+            NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOi'
         }
     }
 })

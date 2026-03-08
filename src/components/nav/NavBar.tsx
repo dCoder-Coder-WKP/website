@@ -14,7 +14,7 @@ const NAV_LINKS = [
   { href: '/villa-concierge', label: 'Villa Concierge' },
 ];
 
-export default function NavBar() {
+export default function NavBar({ logoUrl }: { logoUrl?: string }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
@@ -51,7 +51,7 @@ export default function NavBar() {
           aria-label="We Knead Pizza — Home"
         >
           <img 
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-53SOzTlL8Xd7PWYcK0fpgSVmD7tP41.png" 
+            src={logoUrl || "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-53SOzTlL8Xd7PWYcK0fpgSVmD7tP41.png"} 
             alt="We Knead Pizza Logo" 
             className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]"
           />

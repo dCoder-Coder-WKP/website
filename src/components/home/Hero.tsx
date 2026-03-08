@@ -4,7 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
-export default function Hero() {
+export default function Hero({ heroBgUrl }: { heroBgUrl?: string }) {
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLElement>(null);
@@ -39,7 +39,7 @@ export default function Hero() {
       {/* Pizza background image with controlled opacity */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ivan-torres-MQUqbmszGGM-unsplash-5FVKAfyz48Z9nFz8dvq06SP14OKxdj.jpg"
+          src={heroBgUrl || "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ivan-torres-MQUqbmszGGM-unsplash-5FVKAfyz48Z9nFz8dvq06SP14OKxdj.jpg"}
           alt="Artisan pizza background"
           className="w-full h-full object-cover"
         />

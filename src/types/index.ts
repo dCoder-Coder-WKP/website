@@ -57,6 +57,9 @@ export interface SiteConfig {
   is_open: string;
   delivery_note: string;
   announcement_bar?: string;
+  logo_url?: string;
+  hero_bg_url?: string;
+  dough_img_url?: string;
 }
 
 export type OrderStatus = 'pending' | 'baking' | 'out_for_delivery' | 'delivered' | 'cancelled';
