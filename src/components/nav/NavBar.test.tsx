@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NavBar from './NavBar';
 import { useCartStore } from '@/store/useCartStore';
@@ -182,7 +182,9 @@ describe('NavBar integration', () => {
     const { rerender } = render(<NavBar />);
     expect(screen.getAllByTestId('cart-badge').length).toBeGreaterThan(0);
 
-    useCartStore.setState({ items: [] });
+    act(() => {
+      useCartStore.setState({ items: [] });
+    });
     rerender(<NavBar />);
     expect(screen.queryByTestId('cart-badge')).not.toBeInTheDocument();
   });

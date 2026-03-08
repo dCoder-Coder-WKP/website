@@ -38,13 +38,21 @@ global.IntersectionObserver = class {
   disconnect() { /* noop */ }
 } as any;
 
+vi.mock('@/lib/api', () => ({
+  fetchSiteConfig: vi.fn().mockResolvedValue({
+    hero_bg_url: 'dummy-hero.jpg',
+    dough_img_url: 'dummy-dough.jpg',
+  })
+}));
+
 describe('Homepage (Inspiration Redesign)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders all inspiration sections', () => {
-    render(<Page />);
+  it('renders all inspiration sections', async () => {
+    const Component = await Page();
+    render(Component);
     
     expect(screen.getByTestId('hero-section')).toBeInTheDocument();
     expect(screen.getByTestId('dough-section')).toBeInTheDocument();

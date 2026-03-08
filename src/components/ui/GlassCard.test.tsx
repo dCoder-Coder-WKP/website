@@ -11,15 +11,18 @@ vi.mock('gsap', () => ({
 }));
 
 // Mock framer-motion components
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, className, ...props }: any) => (
-      <div data-testid="motion-div" className={className} {...props}>
-        {children}
-      </div>
-    ),
-  },
-}));
+vi.mock('framer-motion', async () => {
+  const React = await import('react');
+  return {
+    motion: {
+      div: React.forwardRef(({ children, className, initial, animate, whileHover, transition, ...props }: any, ref: any) => (
+        <div data-testid="motion-div" className={className} ref={ref} {...props}>
+          {children}
+        </div>
+      )),
+    },
+  };
+});
 
 describe('GlassCard Component', () => {
   it('renders children with glassmorphism classes', () => {
