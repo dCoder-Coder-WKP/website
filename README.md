@@ -18,7 +18,7 @@ The WKP Website is a Next.js 15 (App Router) application. Originally a fully sta
 ## Developer & Engineer Guide
 
 ### Prerequisites
-- Node.js 18.17+
+- Node.js 22+ (Required for proper Vitest ESM support)
 - A Supabase Project (URL and Anon Key)
 
 ### Environment Setup
