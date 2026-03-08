@@ -11,10 +11,10 @@ interface MobileDrawerProps {
 }
 
 const NAV_LINKS = [
-  { href: '/', label: 'Foundation' },
-  { href: '/menu', label: 'The Collection' },
-  { href: '/build', label: 'Configurator' },
-  { href: '/cart', label: 'Acquisitions' },
+  { href: '/', label: 'Home' },
+  { href: '/menu', label: 'Menu' },
+  { href: '/build', label: 'Build Your Own' },
+  { href: '/cart', label: 'Cart' },
 ];
 
 export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
@@ -92,7 +92,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             {/* Footer mark */}
             <div className="mt-auto">
               <p className="font-sans text-[10px] tracking-luxury text-text-muted uppercase">
-                Artisanal Perfection
+                Carona, Goa
               </p>
             </div>
           </motion.aside>

@@ -7,8 +7,8 @@ import AnimatedStats from '@/components/home/AnimatedStats';
 import ReservationSection from '@/components/home/ReservationSection';
 
 export const metadata = {
-  title: 'We Knead Pizza | Artisanal Wood-Fired Pizza in Goa',
-  description: 'Experience authentic, 72-hour fermented artisanal pizza crafted in Carona, Goa. Dine-in, takeaway, and delivery available.',
+  title: 'We Knead Pizza | Freshly Baked Pizza in Carona, Goa',
+  description: 'Freshly kneaded, hand-tossed pizza baked daily in Carona, Goa. Generous toppings, honest ingredients. Dine-in, takeaway & delivery.',
 };
 
 export default function HomePage() {

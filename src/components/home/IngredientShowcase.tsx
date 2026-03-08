@@ -36,7 +36,7 @@ const ingredients: Ingredient[] = [
   {
     name: 'Premium Cheeses',
     origin: 'Select Dairies',
-    description: 'Creamy, delicate, and utterly sublime',
+    description: 'Rich, stretchy, and always generous',
     icon: '🧀',
     delay: 0.3,
   },
@@ -93,8 +93,8 @@ export default function IngredientShowcase() {
             <span className="block text-accent-gold mt-2">Amazing Taste.</span>
           </h2>
           <p className="mt-8 text-balance text-sm font-light leading-relaxed text-text-secondary max-w-2xl mx-auto">
-            We source only the finest components, each selected for absolute purity,
-            health benefits, and flavor density. Every element on our pizzas represents Willie&apos;s commitment to quality.
+            We keep it simple — fresh vegetables, quality cheese, and Willie&apos;s own spice blends.
+            No frozen toppings, no shortcuts. What you see on the pizza is what we picked up that day.
           </p>
         </motion.div>
 

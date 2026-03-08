@@ -9,8 +9,8 @@ import CartBadge from './CartBadge';
 import MobileDrawer from './MobileDrawer';
 
 const NAV_LINKS = [
-  { href: '/menu', label: 'The Collection' },
-  { href: '/build', label: 'Configurator' },
+  { href: '/menu', label: 'Menu' },
+  { href: '/build', label: 'Build Your Own' },
   { href: '/villa-concierge', label: 'Villa Concierge' },
 ];
 

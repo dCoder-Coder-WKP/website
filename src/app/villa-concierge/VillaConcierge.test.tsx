@@ -16,20 +16,20 @@ vi.mock('@/components/ui/GlassCard', () => ({
 }));
 
 describe('VillaConciergePage', () => {
-  it('renders the luxury concierge landing page', () => {
+  it('renders the local delivery landing page', () => {
     render(<VillaConciergePage />);
     
     // Title
-    expect(screen.getByText('Exclusive to Aldona residents')).toBeInTheDocument();
-    expect(screen.getByText(/Villa-to-Table/i)).toBeInTheDocument();
-    expect(screen.getByText(/Concierge/i)).toBeInTheDocument();
+    expect(screen.getByText(/Available in Aldona/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pizza to Your/i)).toBeInTheDocument();
+    expect(screen.getByText(/Door/i)).toBeInTheDocument();
 
     // Feature blocks
-    expect(screen.getByText('Artisanal White-Glove')).toBeInTheDocument();
-    expect(screen.getByText('Terroir Selection')).toBeInTheDocument();
-    expect(screen.getByText('Silent Logistics')).toBeInTheDocument();
+    expect(screen.getByText('Order by WhatsApp')).toBeInTheDocument();
+    expect(screen.getByText('Fresh Every Day')).toBeInTheDocument();
+    expect(screen.getByText('Simple & Hassle-Free')).toBeInTheDocument();
 
     // CTA
-    expect(screen.getByText('Verify My Villa')).toBeInTheDocument();
+    expect(screen.getByText('Order on WhatsApp')).toBeInTheDocument();
   });
 });

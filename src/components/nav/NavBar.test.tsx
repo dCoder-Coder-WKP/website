@@ -112,10 +112,10 @@ describe('NavBar integration', () => {
     expect(logo).toHaveAttribute('href', '/');
   });
 
-  it('desktop: renders Collection and Configurator links', () => {
+  it('desktop: renders Menu and Build Your Own links', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: /Collection/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Configurator/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Menu/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Build Your Own/i })).toBeInTheDocument();
   });
 
   it('renders hamburger button', () => {
@@ -127,8 +127,9 @@ describe('NavBar integration', () => {
     render(<NavBar />);
     const hamburger = screen.getByTestId('hamburger-btn');
     await userEvent.click(hamburger);
-    // MobileDrawer should be open and show Foundation link
-    expect(screen.getByRole('link', { name: /Foundation/i })).toBeInTheDocument();
+    // MobileDrawer should be open and show Home link
+    const homeLinks = screen.getAllByRole('link', { name: /Home/i });
+    expect(homeLinks.length).toBeGreaterThan(0);
   });
 
   it('drawer close button closes drawer', async () => {
@@ -154,7 +155,7 @@ describe('NavBar integration', () => {
     render(<NavBar />);
     await userEvent.click(screen.getByTestId('hamburger-btn'));
 
-    const collectionLinks = screen.getAllByRole('link', { name: /Collection/i });
+    const collectionLinks = screen.getAllByRole('link', { name: /Menu/i });
     // Click the last one which is in the drawer
     await userEvent.click(collectionLinks[collectionLinks.length - 1]);
 

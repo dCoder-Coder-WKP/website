@@ -13,15 +13,16 @@ export default function VillaConciergePage() {
         className="mx-auto max-w-6xl text-center"
       >
         <span className="mb-4 inline-block rounded-full border border-accent-gold/30 bg-accent-gold/10 px-4 py-2 text-sm font-medium tracking-widest text-accent-gold uppercase">
-          Exclusive to Aldona residents
+          Available in Aldona &amp; Carona
         </span>
-        <h1 className="mb-6 font-serif text-6xl font-bold leading-tight md:text-8xl">
-          Villa-to-Table <br />
-          <span className="text-accent-gold italic">Concierge</span>
+        <h1 className="mb-6 font-serif text-5xl font-bold leading-tight md:text-7xl">
+          Pizza to Your
+          <br />
+          <span className="text-accent-gold italic">Door</span>
         </h1>
-        <p className="mx-auto mb-12 max-w-2xl text-xl text-river-silk">
-          The artisanal soul of Carona, delivered with white-glove precision. 
-          Private waiter service, custom terroir menus, and silent logistics for your sanctuary.
+        <p className="mx-auto mb-12 max-w-2xl text-lg text-river-silk">
+          If you live in or around Carona and Aldona, we can bring a fresh pizza right to you.
+          Just call us on WhatsApp and we&apos;ll sort it out.
         </p>
       </motion.div>
 
@@ -42,9 +43,9 @@ export default function VillaConciergePage() {
               />
             </svg>
           </div>
-          <h3 className="mb-4 font-serif text-3xl font-bold">Artisanal White-Glove</h3>
+          <h3 className="mb-4 font-serif text-3xl font-bold">Order by WhatsApp</h3>
           <p className="text-river-silk">
-            Full waiter service at your villa. We don’t just deliver; we plate and serve with cinematic elegance.
+            Send us a message on WhatsApp with your order and address. Willie or the team will confirm and let you know when your pizza is on its way.
           </p>
         </GlassCard>
 
@@ -64,9 +65,9 @@ export default function VillaConciergePage() {
               />
             </svg>
           </div>
-          <h3 className="mb-4 font-serif text-3xl font-bold">Terroir Selection</h3>
+          <h3 className="mb-4 font-serif text-2xl font-bold">Fresh Every Day</h3>
           <p className="text-river-silk">
-            Exclusive access to ingredients sourced within 5km of Aldona. Wild mushrooms, village chorizo, and local feni reductions.
+            The same pizza we make in-store — kneaded that morning, topped fresh, baked to order. No compromises for delivery.
           </p>
         </GlassCard>
 
@@ -86,9 +87,9 @@ export default function VillaConciergePage() {
               />
             </svg>
           </div>
-          <h3 className="mb-4 font-serif text-3xl font-bold">Silent Logistics</h3>
+          <h3 className="mb-4 font-serif text-2xl font-bold">Simple &amp; Hassle-Free</h3>
           <p className="text-river-silk">
-            Zero noise impact. Our custom e-bikes navigate the lanes of Aldona in perfect silence, preserving the village peace.
+            No app, no registration. We cover nearby neighbourhoods in Carona and Aldona. One message and you're sorted.
           </p>
         </GlassCard>
       </div>
@@ -99,12 +100,17 @@ export default function VillaConciergePage() {
         transition={{ delay: 0.5 }}
         className="mx-auto mt-24 max-w-3xl text-center"
       >
-        <button className="group relative overflow-hidden rounded-full border-2 border-accent-gold bg-transparent px-12 py-5 font-serif text-2xl font-bold text-accent-gold transition-all hover:bg-accent-gold hover:text-luxury-aldona-lush">
-          <span className="relative z-10 uppercase tracking-widest">Verify My Villa</span>
+        <a
+          href="https://wa.me/918484802540"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative overflow-hidden rounded-full border-2 border-accent-gold bg-transparent px-12 py-5 font-serif text-xl font-bold text-accent-gold transition-all hover:bg-accent-gold hover:text-luxury-aldona-lush inline-block"
+        >
+          <span className="relative z-10 uppercase tracking-widest">Order on WhatsApp</span>
           <div className="absolute inset-x-0 bottom-0 top-full bg-accent-gold transition-all group-hover:top-0" />
-        </button>
+        </a>
         <p className="mt-6 text-sm text-river-silk opacity-60">
-          *Access is strictly limited to verified property owners in the Aldona/Carona ward.
+          *Delivery available in Carona and nearby areas. Call ahead to confirm.
         </p>
       </motion.div>
     </div>

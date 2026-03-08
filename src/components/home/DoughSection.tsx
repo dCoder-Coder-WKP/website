@@ -22,10 +22,10 @@ export default function DoughSection() {
               A Family Legacy in Carona
             </h2>
             <p className="text-text-secondary font-sans text-sm leading-relaxed mb-6 font-light">
-              Every pizza begins with recipes passed down for generations by owner Willie Fernandes. We handcraft our signature fresh dough daily, blending traditional Goan baking techniques with contemporary culinary precision to ensure amazing taste in every bite.
+              Every pizza starts with recipes passed down through the family by owner Willie Fernandes. We knead our dough fresh each day, the same way it’s been done for generations — no shortcuts, no frozen bases.
             </p>
             <p className="text-text-secondary font-sans text-sm leading-relaxed mb-10 font-light">
-              Hand-tossed and carefully baked in our specialized gas ovens, each composition achieves the perfect harmony of authentic Goan flavor, utilizing only the finest healthy toppings for a superior experience.
+              Each pizza is hand-tossed, loaded with toppings, and baked in our gas ovens until it’s golden, bubbly, and ready. Simple as that.
             </p>
             <ul className="space-y-4 text-text-muted font-sans text-sm font-light tracking-wide">
               <li className="flex items-start gap-3">
@@ -38,7 +38,7 @@ export default function DoughSection() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-accent-gold/60 mt-0.5">✦</span>
-                <span>Precision gas-oven baked to perfection</span>
+                <span>Precision gas-oven baked</span>
               </li>
             </ul>
           </motion.div>

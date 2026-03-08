@@ -94,14 +94,14 @@ export default function Hero() {
         {/* Tagline */}
         <div className={`transition-all duration-ultra delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <p className="text-lg md:text-xl text-text-secondary mb-12 font-sans font-light tracking-wide drop-shadow-lg">
-            Generations-old <span className="text-accent-gold">Goan Baked</span> Pizza. Gas-oven fired with fresh dough, healthy toppings, and amazing taste—crafted in Carona.
+            Hand-tossed pizza, freshly kneaded and baked daily in <span className="text-accent-gold">Carona, Goa</span>. Generous toppings, honest ingredients, proper good taste.
           </p>
         </div>
 
         {/* CTA Button */}
         <div className={`transition-all duration-ultra delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <Link href="/menu" className="btn-luxury max-w-xs mx-auto text-sm px-12 py-4 shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all duration-medium inline-block transform hover:scale-105">
-            See What&apos;s Baking
+            View Our Menu
           </Link>
         </div>
       </div>

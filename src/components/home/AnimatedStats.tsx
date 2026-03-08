@@ -10,12 +10,12 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  { label: 'Generations of Recipes', value: 3, suffix: 'rd' },
-  { label: 'Fresh Dough Daily', value: 100, suffix: '%' },
-  { label: 'Gas Oven Precision', value: 300, suffix: '°C' },
+  { label: 'Star Rating on Google', value: 4.9, suffix: '★' },
+  { label: 'Happy Customers Reviewed', value: 200, suffix: '+' },
+  { label: 'Years Serving Carona', value: 10, suffix: '+' },
 ];
 
-function CounterNumber({ target, suffix }: { target: number; suffix: string }) {
+function CounterNumber({ target, suffix, label }: { target: number; suffix: string; label: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
@@ -43,8 +43,23 @@ function CounterNumber({ target, suffix }: { target: number; suffix: string }) {
       ref={ref}
       className="font-serif text-5xl italic text-text-primary sm:text-6xl lg:text-7xl group-hover:text-accent-gold transition-colors duration-long"
     >
-      {count}
-      <span className="text-accent-gold">{suffix}</span>
+      <div className="flex items-center justify-center gap-2">
+        {count}
+        <span className="text-accent-gold">{suffix}</span>
+      </div>
+      {label.includes('Star') && (
+        <div className="flex justify-center gap-1 mt-4">
+          {[1, 2, 3, 4, 5].map((star, i) => (
+            <svg 
+              key={star} 
+              className={`w-6 h-6 md:w-8 md:h-8 ${i < 4 || count > 4.5 ? 'text-accent-gold fill-accent-gold' : 'text-accent-gold/30 fill-accent-gold/30'} drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]`} 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -73,12 +88,12 @@ export default function AnimatedStats() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mb-20 text-center"
         >
-          <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">The Secret Sauce</span>
+          <span className="text-accent-gold text-[10px] tracking-luxury uppercase font-sans block mb-4">People's Choice</span>
           <h2 className="font-serif text-4xl italic sm:text-5xl lg:text-5xl text-text-primary">
-            By The Numbers
+            What Carona Says
           </h2>
           <p className="mt-6 text-sm font-light text-text-secondary">
-            Willie Fernandes&apos; dedication to family recipes and modern precision.
+            Voted Carona&apos;s favourite pizza spot, again and again.
           </p>
         </motion.div>
 
@@ -92,7 +107,7 @@ export default function AnimatedStats() {
               transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="group flex flex-col items-center justify-center space-y-6 transition-transform hover:scale-105 duration-ultra cursor-default"
             >
-              <CounterNumber target={stat.value} suffix={stat.suffix} />
+              <CounterNumber target={stat.value} suffix={stat.suffix} label={stat.label} />
               <p className="text-center text-[10px] tracking-luxury text-text-muted uppercase font-sans">
                 {stat.label}
               </p>

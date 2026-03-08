@@ -89,7 +89,7 @@ export default function ExtrasSection({ items, category }: ExtrasSectionProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
                 >
-                  {item.isSoldOut ? 'Sold Out' : 'Acquire'}
+                  {item.isSoldOut ? 'Sold Out' : 'Add'}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -99,7 +99,7 @@ export default function ExtrasSection({ items, category }: ExtrasSectionProps) {
     );
   };
 
-  const title = category === 'starter' ? 'Curated Sides' : 'Indulgent Desserts';
+  const title = category === 'starter' ? 'Sides & Starters' : 'Desserts';
 
   return (
     <section className="mb-32 w-full">
