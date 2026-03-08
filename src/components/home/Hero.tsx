@@ -93,9 +93,11 @@ export default function Hero({ heroBgUrl }: { heroBgUrl?: string }) {
 
         {/* Tagline */}
         <div className={`transition-all duration-ultra delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <p className="text-lg md:text-xl text-text-secondary mb-12 font-sans font-light tracking-wide drop-shadow-lg">
-            Hand-tossed pizza, freshly kneaded and baked daily in <span className="text-accent-gold">Carona, Goa</span>. Generous toppings, honest ingredients, proper good taste.
-          </p>
+          <div className="inline-block mx-auto max-w-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl px-6 py-4 mb-12">
+            <p className="text-lg md:text-xl text-gray-100 font-sans font-light tracking-wide leading-relaxed drop-shadow-md">
+              Hand-tossed pizza, freshly kneaded and baked daily in <span className="text-accent-gold font-medium">Carona, Goa</span>.<br className="hidden sm:block" /> Generous toppings, honest ingredients, proper good taste.
+            </p>
+          </div>
         </div>
 
         {/* CTA Button */}
