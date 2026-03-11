@@ -1,220 +1,83 @@
-name: CI/CD Pipeline
+name: Website CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
+
+concurrency:
+  group: website-cicd-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
-  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NODE_VERSION: 20
 
 jobs:
-  # Website Build and Test
-  website-ci:
-    name: Website CI/CD
+  build-test:
+    name: Lint, Test & Build
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: website/package-lock.json
-        
-    - name: Install dependencies
-      working-directory: ./website
-      run: npm ci
-      
-    - name: Run linting
-      working-directory: ./website
-      run: npm run lint
-      
-    - name: Type check
-      working-directory: ./website
-      run: npm run type-check || true  # Allow to continue if type-check doesn't exist
-      
-    - name: Build application
-      working-directory: ./website
-      run: npm run build
-      
-    - name: Run tests
-      working-directory: ./website
-      run: npm test || true  # Allow to continue if no tests exist
-      
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      if: github.ref == 'refs/heads/main'
-      with:
-        name: website-build
-        path: website/.next
-        retention-days: 30
 
-  # Admin Dashboard Build and Test
-  admin-ci:
-    name: Admin Dashboard CI/CD
-    runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: admin-dashboard/package-lock.json
-        
-    - name: Install dependencies
-      working-directory: ./admin-dashboard
-      run: npm ci
-      
-    - name: Run linting
-      working-directory: ./admin-dashboard
-      run: npm run lint || true  # Allow warnings but continue
-      
-    - name: Type check
-      working-directory: ./admin-dashboard
-      run: npx tsc --noEmit || true
-      
-    - name: Build application
-      working-directory: ./admin-dashboard
-      run: npm run build
-      
-    - name: Run tests
-      working-directory: ./admin-dashboard
-      run: npm test || true  # Allow to continue if no tests exist
-      
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      if: github.ref == 'refs/heads/main'
-      with:
-        name: admin-build
-        path: admin-dashboard/.next
-        retention-days: 30
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  # Database Schema Validation
-  schema-validation:
-    name: Database Schema Validation
-    runs-on: ubuntu-latest
-    needs: [website-ci, admin-ci]
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: Install Supabase CLI
-      run: npm install -g supabase
-      
-    - name: Validate CMS Schema
-      run: |
-        echo "Validating CMS schema structure..."
-        if [ -f "cms-schema.sql" ]; then
-          # Check if schema has required tables
-          required_tables=("categories" "pizzas" "toppings" "sizes" "extras" "site_config")
-          for table in "${required_tables[@]}"; do
-            if grep -q "CREATE TABLE.*$table" cms-schema.sql; then
-              echo "✅ Table $table found in schema"
-            else
-              echo "❌ Table $table missing from schema"
-              exit 1
-            fi
-          done
-          echo "✅ All required tables found in CMS schema"
-        else
-          echo "❌ cms-schema.sql not found"
-          exit 1
-        fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
 
-  # Security Audit
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: Audit website dependencies
-      working-directory: ./website
-      run: npm audit --audit-level=moderate || true
-      
-    - name: Audit admin dependencies
-      working-directory: ./admin-dashboard
-      run: npm audit --audit-level=moderate || true
+      - name: Install dependencies
+        run: npm ci
 
-  # Deployment (Production only)
+      - name: Type check (if available)
+        run: npm run type-check --if-present
+
+      - name: Unit tests (if available)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run test --if-present
+
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Upload production build
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-next-build
+          path: .next
+          retention-days: 14
+
   deploy:
-    name: Deploy to Production
+    name: Deploy to Vercel
+    needs: build-test
     runs-on: ubuntu-latest
-    needs: [website-ci, admin-ci, schema-validation]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Deploy to Vercel (Website)
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./website
-        vercel-args: '--prod'
-        
-    - name: Deploy to Vercel (Admin Dashboard)
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ADMIN_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
-        working-directory: ./admin-dashboard
-        vercel-args: '--prod'
-        
-    - name: Notify deployment success
-      if: success()
-      run: |
-        echo "🎉 Deployment successful!"
-        echo "Website: https://we-knead-pizza.vercel.app"
-        echo "Admin: https://wkp-admin.vercel.app"
 
-  # Database Migration (Production only)
-  migrate-production:
-    name: Apply Database Schema
-    runs-on: ubuntu-latest
-    needs: [deploy]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Apply CMS Schema to Production
-      run: |
-        echo "Applying CMS schema to production database..."
-        # This would typically use Supabase CLI or direct SQL execution
-        # For now, this is a placeholder that would need proper implementation
-        echo "⚠️ Database migration should be applied manually via Supabase dashboard"
-        echo "Schema file: cms-schema.sql"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: .
+
+      - name: Deployment summary
+        run: |
+          echo "🚀 Website deployed to production via Vercel"

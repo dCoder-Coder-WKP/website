@@ -1,89 +1,71 @@
-name: Development Workflow
+name: Website Development
 
 on:
   push:
-    branches: [ develop, feature/* ]
+    branches: [develop, "feature/*"]
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: 20
 
 jobs:
-  # Quick validation for development branches
-  dev-validation:
-    name: Development Validation
+  validate:
+    name: Dev Validation
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: Validate Website
-      working-directory: ./website
-      run: |
-        npm ci
-        npm run lint -- --max-warnings 5  # Allow some warnings in dev
-        npm run build
-        
-    - name: Validate Admin Dashboard
-      working-directory: ./admin-dashboard
-      run: |
-        npm ci
-        npm run lint -- --max-warnings 10  # Allow more warnings in dev
-        npm run build
-        
-    - name: Check for breaking changes
-      run: |
-        echo "Checking for potential breaking changes..."
-        # Add any specific checks for breaking changes here
 
-  # Preview deployment for PRs
-  preview-deploy:
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (warnings allowed)
+        run: npm run lint -- --max-warnings=5
+
+      - name: Run unit tests (if available)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run test --if-present
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+  preview:
     name: Preview Deployment
     runs-on: ubuntu-latest
-    needs: dev-validation
+    needs: validate
     if: github.event_name == 'pull_request'
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Deploy Website Preview
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./website
-        alias-domains: pr-${{ github.event.pull_request.number }}-wkp.vercel.app
-        
-    - name: Deploy Admin Preview
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ADMIN_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
-        working-directory: ./admin-dashboard
-        alias-domains: pr-${{ github.event.pull_request.number }}-admin-wkp.vercel.app
-        
-    - name: Comment PR with preview links
-      uses: actions/github-script@v7
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `## 🚀 Preview Deployments
-            
-            🌐 **Website Preview**: https://pr-${{ context.issue.number }}-wkp.vercel.app
-            ⚙️ **Admin Preview**: https://pr-${{ context.issue.number }}-admin-wkp.vercel.app
-            
-            Please test the changes and leave feedback! 🍕`
-          })
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy preview
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          alias-domains: pr-${{ github.event.pull_request.number }}-website.vercel.app
+
+      - name: Comment with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview ready: https://pr-${{ context.issue.number }}-website.vercel.app`
+            })
