@@ -2,9 +2,33 @@ import { supabase } from './supabase'
 import { logger } from './logger'
 import { Pizza, Topping, Extra, Notification, SiteConfig, ToppingID, Size } from '../types'
 import { PIZZAS, TOPPINGS, EXTRAS } from './menuData'
+import { 
+  fetchPizzas as fetchCmsPizzas,
+  fetchToppings as fetchCmsToppings,
+  fetchExtras as fetchCmsExtras,
+  fetchSiteConfig as fetchCmsSiteConfig,
+  fetchSiteStatus,
+  convertToLegacyFormat,
+  type Pizza as CmsPizza,
+  type Topping as CmsTopping,
+  type Extra as CmsExtra
+} from './cms-api'
 
 export async function fetchPizzas(): Promise<Pizza[]> {
   try {
+    // Try new CMS schema first
+    const cmsPizzas = await fetchCmsPizzas()
+    if (cmsPizzas.length > 0) {
+      const cmsToppings = await fetchCmsToppings()
+      const cmsExtras = await fetchCmsExtras()
+      const cmsSizes = await (await import('./cms-api')).fetchSizes()
+      const cmsCategories = await (await import('./cms-api')).fetchCategories()
+      
+      const legacy = convertToLegacyFormat(cmsPizzas, cmsToppings, cmsExtras, cmsSizes, cmsCategories)
+      return legacy.pizzas
+    }
+    
+    // Fallback to old schema
     const { data, error } = await supabase
       .from('pizzas')
       .select(`
@@ -45,6 +69,19 @@ export async function fetchPizzas(): Promise<Pizza[]> {
 
 export async function fetchToppings(): Promise<Topping[]> {
   try {
+    // Try new CMS schema first
+    const cmsToppings = await fetchCmsToppings()
+    if (cmsToppings.length > 0) {
+      const cmsExtras = await fetchCmsExtras()
+      const cmsSizes = await (await import('./cms-api')).fetchSizes()
+      const cmsCategories = await (await import('./cms-api')).fetchCategories()
+      const cmsPizzas = await fetchCmsPizzas()
+      
+      const legacy = convertToLegacyFormat(cmsPizzas, cmsToppings, cmsExtras, cmsSizes, cmsCategories)
+      return legacy.toppings
+    }
+    
+    // Fallback to old schema
     const { data, error } = await supabase
       .from('toppings')
       .select('*')
@@ -73,6 +110,19 @@ export async function fetchToppings(): Promise<Topping[]> {
 
 export async function fetchExtras(): Promise<Extra[]> {
   try {
+    // Try new CMS schema first
+    const cmsExtras = await fetchCmsExtras()
+    if (cmsExtras.length > 0) {
+      const cmsToppings = await fetchCmsToppings()
+      const cmsSizes = await (await import('./cms-api')).fetchSizes()
+      const cmsCategories = await (await import('./cms-api')).fetchCategories()
+      const cmsPizzas = await fetchCmsPizzas()
+      
+      const legacy = convertToLegacyFormat(cmsPizzas, cmsToppings, cmsExtras, cmsSizes, cmsCategories)
+      return legacy.extras
+    }
+    
+    // Fallback to old schema
     const { data, error } = await supabase
       .from('extras')
       .select('*, categories(slug)')
@@ -130,6 +180,13 @@ export async function fetchNotifications(): Promise<Notification[]> {
 
 export async function fetchSiteConfig(): Promise<SiteConfig | null> {
   try {
+    // Try new CMS schema first
+    const cmsConfig = await fetchCmsSiteConfig()
+    if (Object.keys(cmsConfig).length > 0) {
+      return cmsConfig as SiteConfig
+    }
+    
+    // Fallback to old schema
     const { data, error } = await supabase
       .from('site_config')
       .select('key, value')
@@ -145,6 +202,11 @@ export async function fetchSiteConfig(): Promise<SiteConfig | null> {
     logger.warn('Supabase fetchSiteConfig failed', err, 'api')
     return null
   }
+}
+
+// New function to check site status
+export async function checkSiteStatus() {
+  return fetchSiteStatus()
 }
 
 /**

@@ -5,6 +5,7 @@ import NavBar from '@/components/nav/NavBar';
 import Footer from '@/components/home/Footer';
 import ClientShell from '@/components/ClientShell';
 import NotificationBanner from '@/components/NotificationBanner';
+import MaintenanceMode from '@/components/site/MaintenanceMode';
 import { fetchNotifications, fetchSiteConfig } from '@/lib/api';
 
 const cormorant = Cormorant_Garamond({
@@ -64,6 +65,7 @@ export default async function RootLayout({
       <body
         className={`${cormorant.variable} ${outfit.variable} font-sans antialiased bg-bg-base text-text-primary`}
       >
+        <MaintenanceMode />
         <NavBar logoUrl={config?.logo_url} />
         <ClientShell>
           <div className="relative min-h-screen flex flex-col">

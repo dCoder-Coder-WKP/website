@@ -14,6 +14,7 @@ export interface PizzaCardProps {
 export default function PizzaCard({ pizza }: PizzaCardProps) {
   const [selectedSize, setSelectedSize] = useState<Size>('medium');
   const [addedFeedback, setAddedFeedback] = useState<boolean>(false);
+  const [ghostActive, setGhostActive] = useState(false);
   
   const cartItems = useCartStore(state => state.items);
   const addItem = useCartStore(state => state.addItem);
@@ -32,6 +33,12 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
     }
     return () => clearTimeout(timeout);
   }, [addedFeedback]);
+
+  useEffect(() => {
+    if (!ghostActive) return;
+    const timer = setTimeout(() => setGhostActive(false), 1200);
+    return () => clearTimeout(timer);
+  }, [ghostActive]);
 
   const handleAddToCart = () => {
     addItem({
@@ -58,13 +65,37 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
     updateQuantity(cartKey, cartQuantity + 1);
   };
 
+  const handleVisualPress = () => {
+    if (isSoldOut) return;
+    setGhostActive(true);
+  };
+
   const currentPrice = pizza.prices[selectedSize] * Math.max(cartQuantity, 1);
   const isSoldOut = pizza.isSoldOut;
+
+  const illustrationVisibility = pizza.image
+    ? ghostActive
+      ? 'opacity-100'
+      : 'opacity-0 group-hover:opacity-80'
+    : 'opacity-100';
 
   return (
     <div className={`surface-luxury group flex flex-col h-full overflow-hidden transition-all duration-medium ${isSoldOut ? 'opacity-60 saturate-50 cursor-not-allowed' : 'hover:border-accent-gold-glow'}`}>
       {/* Visual Showcase */}
-      <div className="relative aspect-[4/3] bg-bg-base overflow-hidden flex items-center justify-center border-b border-border-refined group-hover:border-accent-gold/20 transition-colors">
+      <div
+        className="relative aspect-[4/3] bg-bg-base overflow-hidden flex items-center justify-center border-b border-border-refined group-hover:border-accent-gold/20 transition-colors cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-pressed={ghostActive}
+        aria-label={`Reveal artisan illustration for ${pizza.name}`}
+        onClick={handleVisualPress}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleVisualPress();
+          }
+        }}
+      >
         {/* Background Narrative Image */}
         {pizza.image && (
           <>
@@ -81,7 +112,7 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
 
         {/* Fallback or Interactive Illustration */}
         <motion.div 
-          className={`w-full h-full p-6 flex items-center justify-center transform-gpu z-10 ${pizza.image ? 'opacity-0 group-hover:opacity-100 transition-opacity duration-luxury' : ''}`}
+          className={`w-full h-full p-6 flex items-center justify-center transform-gpu z-10 transition-opacity duration-700 ${illustrationVisibility}`}
           animate={{ 
             scale: selectedSize === 'small' ? 0.85 : selectedSize === 'large' ? 1.1 : 1.0,
           }}
@@ -149,7 +180,7 @@ export default function PizzaCard({ pizza }: PizzaCardProps) {
                 <button
                   onClick={handleAddToCart}
                   disabled={isSoldOut}
-                  className={`btn-luxury !px-8 h-full flex items-center justify-center min-w-[120px] transition-all duration-medium ${
+                  className={`btn-luxury !px-8 h-full flex items-center justify-center min-w-[140px] transition-all duration-medium bg-gradient-to-r from-[#FCE39D] via-[#F7C46D] to-[#E6812F] text-neutral-900 ring-1 ring-white/15 shadow-[0_15px_45px_rgba(0,0,0,0.55)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 ${
                     addedFeedback ? 'bg-green-800/20 text-green-400 border-green-800/40' : ''
                   } ${isSoldOut ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : ''}`}
                 >

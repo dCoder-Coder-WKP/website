@@ -4,7 +4,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
-export default function Hero({ heroBgUrl }: { heroBgUrl?: string }) {
+interface HeroProps {
+  heroBgUrl?: string;
+  logoUrl?: string;
+}
+
+export default function Hero({ heroBgUrl, logoUrl }: HeroProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLElement>(null);
@@ -99,6 +104,26 @@ export default function Hero({ heroBgUrl }: { heroBgUrl?: string }) {
             </p>
           </div>
         </div>
+
+        {/* Brand lockup */}
+        {logoUrl && (
+          <div className={`transition-all duration-ultra delay-250 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="relative mx-auto mb-12 flex max-w-sm items-center gap-4 rounded-3xl border border-white/10 bg-white/5 px-5 py-4 text-left shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-accent-gold/30 via-transparent to-transparent opacity-40" />
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-black/60 shadow-inner shadow-black/50 ring-1 ring-white/10">
+                <img
+                  src={logoUrl}
+                  alt="We Knead Pizza crest"
+                  className="h-9 w-9 object-contain drop-shadow-[0_0_12px_rgba(212,175,55,0.4)]"
+                />
+              </div>
+              <div className="relative">
+                <p className="text-sm font-serif uppercase tracking-[0.4em] text-accent-gold">We Knead Pizza</p>
+                <p className="mt-1 text-xs font-sans text-text-secondary">Carona, Goa · Est. 2014</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CTA Button */}
         <div className={`transition-all duration-ultra delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>

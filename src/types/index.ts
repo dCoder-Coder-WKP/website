@@ -23,6 +23,10 @@ export interface Pizza {
   dietary: 'veg' | 'non-veg';
   spicy?: boolean;
   isSoldOut?: boolean;
+  isBestseller?: boolean;
+  isSpicy?: boolean;
+  highlight?: string;
+  region?: string;
 }
 
 export interface Extra {
@@ -50,16 +54,34 @@ export interface Notification {
 }
 
 export interface SiteConfig {
-  whatsapp_number: string;
-  opening_time: string;
-  closing_time: string;
-  min_order_amount: string;
-  is_open: string;
-  delivery_note: string;
+  [key: string]: string | undefined;
+  whatsapp_number?: string;
+  phone_number?: string;
+  email_address?: string;
+  opening_time?: string;
+  closing_time?: string;
+  min_order_amount?: string;
+  is_open?: string;
+  delivery_note?: string;
   announcement_bar?: string;
   logo_url?: string;
   hero_bg_url?: string;
   dough_img_url?: string;
+  hero_title?: string;
+  hero_subtitle?: string;
+  hero_cta_text?: string;
+  hero_cta_link?: string;
+  hero_secondary_cta_text?: string;
+  hero_secondary_cta_link?: string;
+  about_title?: string;
+  about_content?: string;
+  about_image_url?: string;
+  address_line1?: string;
+  address_line2?: string;
+  google_maps_link?: string;
+  fssai_license?: string;
+  meta_description?: string;
+  meta_keywords?: string;
 }
 
 export type OrderStatus = 'pending' | 'baking' | 'out_for_delivery' | 'delivered' | 'cancelled';
